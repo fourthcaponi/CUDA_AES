@@ -16,6 +16,14 @@
 #include <cstring>
 #include <sys/stat.h> //for filesize
 #include <vector>
+#include <stdlib.h>
+
+//the external files
+#include "ByteSub.h"
+#include "ShiftRow.h"
+#include "MixColumn.h"
+#include "KeyAdd.h"
+#include "State.h"
 
 using namespace std;
 
@@ -181,7 +189,46 @@ int main()
 	printf("%.*s\n", BLOCK_SIZE_CHAR, blocks[2].text);
 	//printf(blocks[2].text);
 
+	//convert ALL characters to their hex representation
+	char a = 'b';
+
+	cout << "ASCII: " << a << endl;
+
+	int temp = a;
+	cout << "Decimal: " << temp << endl;
+
+	stringstream ss;
+	ss << hex << temp; // int decimal_value
+	//ss << hex << messageString;
+	
+	string res ( ss.str() );
+
+	cout << "HEX: " << res << endl;
+
+
+
+	//cout << temp;
+
 	//TODO: actually implement AES LOL
+
+
+	//for each block
+	//create initial state from the input block
+	//perform initial key addition -> OUTPUT A STATE
+
+	//ROUNDS
+
+	//BYTE SUB
+	//take that state in as input
+	//state outputBS = ByteSub(outputOfInitialKeyAddition);
+
+
+	//SHIFT ROW
+	//take 
+
+	//MIX COLUMN
+
+	//KEY ADDITION
 
 
 	return 0;
