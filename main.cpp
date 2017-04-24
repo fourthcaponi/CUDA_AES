@@ -17,6 +17,7 @@
 #include <sys/stat.h> //for filesize
 #include <vector>
 #include <stdlib.h>
+#include <stdio.h>
 
 //the external files
 #include "ByteSub.h"
@@ -186,11 +187,11 @@ int main()
 	//i.e. if we are going to pass the 3rd 'block' to AES it would
 	//be the 3rd chunk of 128 bits i.e. 16 characters i.e. blocks[2].text
 
-	printf("%.*s\n", BLOCK_SIZE_CHAR, blocks[2].text);
+	//printf("%.*s\n", BLOCK_SIZE_CHAR, blocks[2].text);
 	//printf(blocks[2].text);
 
 	//convert ALL characters to their hex representation
-	char a = 'b';
+	char a = 'Z';
 
 	cout << "ASCII: " << a << endl;
 
@@ -199,7 +200,7 @@ int main()
 
 	stringstream ss;
 	ss << hex << temp; // int decimal_value
-	//ss << hex << messageString;
+	//ss << hex << messageString; //for the entire input string
 	
 	string res ( ss.str() );
 
@@ -221,6 +222,27 @@ int main()
 	//BYTE SUB
 	//take that state in as input
 	//state outputBS = ByteSub(outputOfInitialKeyAddition);
+
+	State tempState;
+
+	int k = 0;
+	int l = 0;
+
+	for(int i = 0; i < 4; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+
+			//TODO: make sure the elements in the state's matrix don't get populated vertically(?)
+
+			tempState.bytes[i][j] = blocks[k].text[l];
+
+			l++;
+
+		}
+	}
+
+	ByteSub(tempState);
 
 
 	//SHIFT ROW

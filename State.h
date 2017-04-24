@@ -13,7 +13,7 @@
 
 struct State{
 
-    char bytes[4][4];
+    unsigned char bytes[4][4];
 
 };
 
