@@ -15,6 +15,8 @@
 #include "State.h"
 #include "Matrices.h"
 
-void ByteSub(State input);
+State ByteSub(State input);
+
+void InvByteSub(State input);
 
 #endif

@@ -8,6 +8,7 @@
 // Revisions:
 // 04/10/2017 | DS | Creation.  I/O and chopping message into chunks set up.
 // 04/12/2017 | DS | Worked on the 'chunks' portion more.  BLOCK_SIZE char vs bit fixed.
+// 04/24/2017 | DS | Plugged in ByteSub and InvByteSub things.
 
 #include <iostream>
 #include <fstream>
@@ -191,6 +192,7 @@ int main()
 	//printf(blocks[2].text);
 
 	//convert ALL characters to their hex representation
+	/*
 	char a = 'Z';
 
 	cout << "ASCII: " << a << endl;
@@ -205,7 +207,7 @@ int main()
 	string res ( ss.str() );
 
 	cout << "HEX: " << res << endl;
-
+	*/
 
 
 	//cout << temp;
@@ -232,17 +234,23 @@ int main()
 	{
 		for(int j = 0; j < 4; j++)
 		{
-
+			
 			//TODO: make sure the elements in the state's matrix don't get populated vertically(?)
 
-			tempState.bytes[i][j] = blocks[k].text[l];
+			tempState.bytes[j][i] = blocks[k].text[l];
 
 			l++;
 
 		}
 	}
 
-	ByteSub(tempState);
+	State tempState2 = ByteSub(tempState);
+	//tempState = ByteSub(tempState);
+
+	cout << "\n!!!!!!!!!!!!!!!!!!! " << tempState2.ByteSub_values[0][0] << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
+
+
+	InvByteSub(tempState2);
 
 
 	//SHIFT ROW
