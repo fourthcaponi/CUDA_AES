@@ -1,5 +1,5 @@
-Input Message
-I love CS490.
+INPUT MESSAGE
+I LOVE CS490.
 Cryptography is a very interesting field.
 Filling up the input text file with garbage.
 I wonder how the newlines will be handled?
