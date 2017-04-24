@@ -225,25 +225,25 @@ int main()
 
 	State tempState;
 
-	int k = 0;
-	int l = 0;
+	// int k = 0;
+	// int l = 0;
 
-	for(int i = 0; i < 4; i++)
-	{
-		for(int j = 0; j < 4; j++)
-		{
+	// for(int i = 0; i < 4; i++)
+	// {
+	// 	for(int j = 0; j < 4; j++)
+	// 	{
 
-			//TODO: make sure the elements in the state's matrix don't get populated vertically(?)
+	// 		//TODO: make sure the elements in the state's matrix don't get populated vertically(?)
 
-			tempState.bytes[i][j] = blocks[k].text[l];
+	// 		tempState.bytes[i][j] = blocks[k].text[l];
 
-			l++;
+	// 		l++;
 
-		}
-	}
+	// 	}
+	// }
 
-	ByteSub(tempState);
-
+	//ByteSub(tempState);
+	MixColumn(tempState);
 
 	//SHIFT ROW
 	//take 

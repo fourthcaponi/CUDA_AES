@@ -59,9 +59,9 @@ void ByteSub(State input)
             //cout << endl << (ss1.str());
 
             //string::size_type sz;
-            //int i_dec = stoi(ss1.str(),nullptr,16);
+            int i_dec = stoi(ss1.str(),nullptr,16);
 
-            //cout << "i_dec: " <<  i_dec << endl;
+            cout << "i_dec: " <<  i_dec << endl;
 
             /*
             byteTemp = temp;

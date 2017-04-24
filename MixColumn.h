@@ -14,6 +14,7 @@
 #include "State.h"
 
 
-State MixColumn(State input);
+void MixColumn(State input);
+void mc_operation(unsigned char *col);
 
 #endif
