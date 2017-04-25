@@ -8,7 +8,8 @@
 // Revisions:
 // 04/19/2017 | DS | Creation.
 // 04/20/2017 | MC | Began implementation
-// 04/24/2017 | MC | The functions are working correctly.
+// 04/24/2017 | MC | Implemented mix column. Output is tested and correct.
+// 04/25/2017 | MC | Implemented inverse mix column. Not tested.
 
 #include <iostream>
 #include <fstream>
@@ -90,8 +91,8 @@ void MixColumn(State input)
 	}
 }
 
-void mc_operation(unsigned char *col) {
-
+void mc_operation(unsigned char *col) 
+{
     unsigned char copyCol[4];
 	for(int i = 0; i < 4; i++)
     {
@@ -105,4 +106,63 @@ void mc_operation(unsigned char *col) {
 	col[2] = gmul(copyCol[0],1) ^ gmul(copyCol[1],1) ^ gmul(copyCol[2],2) ^ gmul(copyCol[3],3);
 
 	col[3] = gmul(copyCol[0],3) ^ gmul(copyCol[1],1) ^ gmul(copyCol[2],1) ^ gmul(copyCol[3],2);
+}
+
+void InvMixColumn (State input)
+{
+    cout << endl;
+
+	unsigned char col[4];
+
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 4; j++)
+        {
+			col[j] = input.bytes[j][i];
+		}
+
+        /* apply the mixColumn on one column */
+        inv_mc_operation(col);
+
+        /* put the values back into the state */
+        for (int j = 0; j < 4; j++)
+        {
+            input.bytes[j][i] = col[j];
+        }
+    }
+
+	cout << endl;
+
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 4; j++)
+        {
+            int byteTemp = input.bytes[j][i];
+            cout << "ASCII: " << input.bytes[j][i] << " ";
+            cout << "Full byteTemp: " << byteTemp << " ";
+
+            stringstream ss1;
+            byteTemp = (byteTemp >> 0) & ((1 << 4)-1); //rightmost 4 bits
+            cout << "Rightmost 4 bits: " << hex << byteTemp << endl;
+
+            ss1 << hex << byteTemp;
+		}
+	}
+}
+
+void mc_operation(unsigned char *col) 
+{
+    unsigned char copyCol[4];
+	for(int i = 0; i < 4; i++)
+    {
+		copyCol[i] = col[i];
+    }
+
+	col[0] = gmul(copyCol[0],14) ^ gmul(copyCol[1],11) ^ gmul(copyCol[2],13) ^ gmul(copyCol[3],9) ;
+
+	col[1] = gmul(copyCol[0],9) ^ gmul(copyCol[1],14) ^ gmul(copyCol[2],11) ^ gmul(copyCol[3],13);
+
+	col[2] = gmul(copyCol[0],13) ^ gmul(copyCol[1],9) ^ gmul(copyCol[2],14) ^ gmul(copyCol[3],11);
+
+	col[3] = gmul(copyCol[0],11) ^ gmul(copyCol[1],13) ^ gmul(copyCol[2],9) ^ gmul(copyCol[3],14);
 }

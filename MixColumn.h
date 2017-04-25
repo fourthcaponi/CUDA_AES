@@ -16,5 +16,7 @@
 
 void MixColumn(State input);
 void mc_operation(unsigned char *col);
+void InvMixColumn (State input);
+void mc_operation(unsigned char *col);
 
 #endif
