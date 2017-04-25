@@ -11,7 +11,8 @@
 #ifndef STATE_H
 #define STATE_H
 
-struct State{
+struct State
+{
 
     unsigned char bytes[4][4];
     int ByteSub_values[4][4];

@@ -244,13 +244,19 @@ int main()
 		}
 	}
 
+	//create a new state object to receive the new data from ByteSub
+	//TODO: perform this operation in-place in memory and don't create new objects (?)
 	State tempState2 = ByteSub(tempState);
-	//tempState = ByteSub(tempState);
 
 	cout << "\n!!!!!!!!!!!!!!!!!!! " << tempState2.ByteSub_values[0][0] << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
 
+	//INVERSE BYTE SUB
+	//State tempState3 = InvByteSub(tempState2);
+	//cout <<"\n!!!!!!!!!!!!!!!!!!!!!!!!! " << tempState3.ByteSub_values[0][0] << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
 
-	InvByteSub(tempState2);
+	State tempState4 = ShiftRow(tempState2);
+
+	cout << "\n!!!!!!!!!!!!!!!!!!! " << tempState4.bytes[0][0] << " !!!!!!!!!!!!!!!!!!!!!\n";
 
 
 	//SHIFT ROW
@@ -259,6 +265,11 @@ int main()
 	//MIX COLUMN
 
 	//KEY ADDITION
+
+
+
+	
+
 
 
 	return 0;

@@ -17,6 +17,6 @@
 
 State ByteSub(State input);
 
-void InvByteSub(State input);
+State InvByteSub(State input);
 
 #endif

@@ -7,6 +7,7 @@
 //
 // Revisions:
 // 04/23/2017 | DS | Creation.
+// 04/24/2017 | DS | Added ByteSub and InvByteSub matrices.
 
 #ifndef MATRICES_H
 #define MATRICES_H

@@ -7,6 +7,7 @@
 //
 // Revisions:
 // 04/19/2017 | DS | Creation.
+// 04/24/2017 | DS | Added InvShiftRow.
 
 #ifndef SHIFT_ROW_H
 #define SHIFT_ROW_H
@@ -15,5 +16,6 @@
 
 
 State ShiftRow(State input);
+State InvShiftRow(State input);
 
 #endif
