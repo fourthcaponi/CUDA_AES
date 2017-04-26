@@ -8,6 +8,8 @@
 // Revisions:
 // 04/10/2017 | DS | Creation.  I/O and chopping message into chunks set up.
 // 04/12/2017 | DS | Worked on the 'chunks' portion more.  BLOCK_SIZE char vs bit fixed.
+// 04/24/2017 | DS | Plugged in ByteSub and InvByteSub things.
+// 04/25/2017 | DS | Added the new print() function after each state.  Using test matrix.
 
 #include <iostream>
 #include <fstream>
@@ -18,6 +20,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <stdio.h>
+#include <iomanip>
 
 //the external files
 #include "ByteSub.h"
@@ -25,6 +28,7 @@
 #include "MixColumn.h"
 #include "KeyAdd.h"
 #include "State.h"
+#include "Matrices.h" //for the test input matrix
 
 using namespace std;
 
@@ -191,6 +195,7 @@ int main()
 	//printf(blocks[2].text);
 
 	//convert ALL characters to their hex representation
+	/*
 	char a = 'Z';
 
 	cout << "ASCII: " << a << endl;
@@ -205,7 +210,7 @@ int main()
 	string res ( ss.str() );
 
 	cout << "HEX: " << res << endl;
-
+	*/
 
 
 	//cout << temp;
@@ -223,8 +228,13 @@ int main()
 	//take that state in as input
 	//state outputBS = ByteSub(outputOfInitialKeyAddition);
 
+
+
+	/*
 	State tempState;
 
+	
+	//the following is to populate from the input message
 	int k = 0;
 	int l = 0;
 
@@ -232,25 +242,46 @@ int main()
 	{
 		for(int j = 0; j < 4; j++)
 		{
-
+			
 			//TODO: make sure the elements in the state's matrix don't get populated vertically(?)
 
-			tempState.bytes[i][j] = blocks[k].text[l];
+			tempState.bytes[j][i] = blocks[k].text[l];
 
 			l++;
 
 		}
 	}
+	*/
 
-	ByteSub(tempState);
+	//populate with the temp matrix on page 199
+	//note this temp matrix is defined in Matrices.h
+	State testState; 
+	for(int i = 0; i < 4; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+			testState.bytes[i][j] = Matrix_TestInput[i][j];
+		}
+	}
 
+	cout << "---- ORIGINAL MATRIX ----\n";
+	testState.print();
 
-	//SHIFT ROW
-	//take 
+	ByteSub(testState);
 
-	//MIX COLUMN
+	cout << "---- AFTER BYTE SUB ----\n";
+	testState.print();
 
-	//KEY ADDITION
+	ShiftRow(testState);
+
+	cout << "---- AFTER SHIFT ROW ----\n";
+	testState.print();
+
+	MixColumn(testState);
+
+	cout << "---- AFTER MIX COLUMN ----\n";
+	testState.print();
+
 
 
 	return 0;

@@ -11,10 +11,11 @@
 #ifndef BYTE_SUB_H
 #define BYTE_SUB_H
 
-
 #include "State.h"
 #include "Matrices.h"
 
-void ByteSub(State input);
+void ByteSub(State &input);
+
+void InvByteSub(State &input);
 
 #endif

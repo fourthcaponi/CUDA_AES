@@ -7,13 +7,18 @@
 //
 // Revisions:
 // 04/19/2017 | DS | Creation.
+// 04/23/2017 | MC | Included mc_operation
+// 04/25/2017 | DS | Renamed the second mc_operation to inv_mc_operation.  Placed & into parameters.
 
 #ifndef MIX_COL_H
 #define MIX_COL_H
 
 #include "State.h"
 
+void MixColumn(State &input);
+void mc_operation(unsigned char *col);
 
-State MixColumn(State input);
+void InvMixColumn (State &input);
+void inv_mc_operation(unsigned char *col);
 
 #endif

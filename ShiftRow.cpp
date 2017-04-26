@@ -7,6 +7,8 @@
 //
 // Revisions:
 // 04/19/2017 | DS | Creation.
+// 04/24/2017 | DS | Added the shift operators.
+// 04/25/2017 | DS | Added the &'s to parameters.  Changed functions to return void.
 
 #include <iostream>
 #include <fstream>
@@ -21,18 +23,36 @@ using namespace std;
 #include "ShiftRow.h"
 #include "State.h"
 
-State ShiftRow(State input)
+void ShiftRow(State &input)
 {
-    State temp;
-    
     for(int i = 0; i < 4; i++)
     {
+        unsigned char tempBytes[4];
         for(int j = 0; j < 4; j++)
         {
-            temp.bytes[i][j] = 0x63; //hex
+            //perform the left shift as dependent upon the row
+            tempBytes[j] = input.bytes[i][(j+i)%4];
+        }
+        for(int k = 0; k < 4; k++)
+        {
+            input.bytes[i][k] = tempBytes[k];
         }
     }
+}
 
-
-    return temp;
+void InvShiftRow(State &input)
+{  
+    for(int i = 0; i < 4; i++)
+    {
+        unsigned char tempBytes[4];
+        for(int j = 0; j < 4; j++)
+        {
+            //perform the right shift as dependent upon the row
+            tempBytes[j] = input.bytes[i][(j-i)%4];
+        }
+        for(int k = 0; k < 4; k++)
+        {
+            input.bytes[i][k] = tempBytes[k];
+        }
+    }
 }

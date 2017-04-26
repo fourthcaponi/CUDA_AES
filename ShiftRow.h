@@ -7,13 +7,15 @@
 //
 // Revisions:
 // 04/19/2017 | DS | Creation.
+// 04/24/2017 | DS | Added InvShiftRow.
+// 04/25/2017 | DS | Added the &'s to parameters. Changed functions to return void.
 
 #ifndef SHIFT_ROW_H
 #define SHIFT_ROW_H
 
 #include "State.h"
 
-
-State ShiftRow(State input);
+void ShiftRow(State &input);
+void InvShiftRow(State &input);
 
 #endif
