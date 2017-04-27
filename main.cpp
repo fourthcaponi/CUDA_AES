@@ -220,6 +220,7 @@ int main()
 
 	//declare our array of keys that will be populated with the key expansions
 	Word keyWords[numKeyWords]; //the total "words" to be populated
+
 	//TODO: remove the following???
 	State keys[numKeys]; //a "state" consists of 4 words i.e. 16 bytes total
 
@@ -229,44 +230,11 @@ int main()
 	{
 		for(int j = offset; j < offset + 4; j++)
 		{
+			//TODO: does this need to be 4*i???
 			keyWords[i].bytes[j%4] = keyChars[j]; 
 		}
 		offset += 4;
 	}
-
-	cout << "\n---- Naked keyWords [0-groupSize] follows: ----\n";
-
-	for(int i = 0; i < groupSize; i++)
-	{
-		keyWords[i].print();
-	}
-
-	//TODO: the following two loops are PROBABLY unnecessary 
-	//TODO: the keyWords need to be populated first
-
-	/*
-	int keyWordIndex = 0;
-	for(int i = 0; i < 4; i++)
-	{
-		for(int j = 0; j < 4; j++)
-		{
-			keys[0].bytes[i][j] = keyWords[keyWordIndex].bytes[j];
-		}
-		keyWordIndex++;
-	}
-
-	if(groupSize > 4)
-	{
-		for(int i = 4; i < groupSize; i++)
-		{
-			for(int j = 0; j < 4; j++)
-			{
-				keys[1].bytes[i%4][j] = keyWords[keyWordIndex].bytes[j];
-			}
-			keyWordIndex++;
-		}
-	}
-	*/
 
 	//compute the rest of the keyWords
 	//TODO: there is probably a better way to do this (use groupsize and %'s)
@@ -284,6 +252,7 @@ int main()
 			}
 			else
 			{
+				//function g
 				for(int k = 0; k < 4; k++)
 				{
 					tempWord.bytes[k] = keyWords[i-1].bytes[k]; //initially populate the tempword		
@@ -292,11 +261,10 @@ int main()
 				RotWord(tempWord);
 				//apply the subword
 				SubWord(tempWord);
-				//XOR it with Rconi/4
-				for(int k = 0; k < 4; k++)
-				{
-					tempWord.bytes[k] ^= Matrix_RCon[i/4];
-				}
+
+				//XOR the [0]'th byte it with Rconi/4
+				tempWord.bytes[0] ^= Matrix_RCon[i/4];
+				
 				//apply the addition (XOR?)of 't' aka tempWord
 
 				cout << "---- the t value for round " << i/4<<" ----\n";
@@ -304,7 +272,7 @@ int main()
 
 				for(int l = 0; l < 4; l++)
 				{
-					keyWords[i].bytes[l] = tempWord.bytes[l] + keyWords[i-4].bytes[l];
+					keyWords[i].bytes[l] = tempWord.bytes[l] ^ keyWords[i-4].bytes[l];
 				}
 			}	
 		}
@@ -312,49 +280,36 @@ int main()
 	else if(keySize == 192)
 	{
 		Word tempWord;
-		for(int i = 6; i < numKeyWords; i++)
+		for(int i = 4; i < numKeyWords; i++)
 		{
-			if(i%8 != 0)
+			if(i%6 != 0)
 			{
-				if(i%4 == 0)
+				for(int j = 0; j < 4; j++)
 				{
-					for(int j = 0; j < 4; j++)
-					{
-						tempWord.bytes[j] = keyWords[i-1].bytes[j];
-					}
-					//now tempWord is populated with keyWords[i-1] data
-					SubWord(tempWord);
-					for(int j = 0; j < 4; j++)
-					{
-						//perform the addition
-						keyWords[i].bytes[j] = tempWord.bytes[j] ^ keyWords[i-8].bytes[j];
-					}
+					keyWords[i].bytes[j] = keyWords[i-1].bytes[j] ^ keyWords[i-6].bytes[j];
 				}
-				else
-				{
-					for(int j = 0; j < 4; j++)
-					{
-						keyWords[i].bytes[j] = keyWords[i-1].bytes[j] ^ keyWords[i-8].bytes[j];
-					}
-				}
-				
 			}
 			else
 			{
+				//function g
 				for(int k = 0; k < 4; k++)
 				{
+					//note 'tempword' is the 't' variable from the book
 					tempWord.bytes[k] = keyWords[i-1].bytes[k]; //initially populate the tempword		
 				}
 				//perform the rotation
 				RotWord(tempWord);
 				//apply the subword
 				SubWord(tempWord);
-				//XOR it with Rcon[i/4]
-				for(int k = 0; k < 4; k++)
-				{
-					tempWord.bytes[k] ^= Matrix_RCon[i/4];
-				}
+
+				//XOR the [0]'th byte it with Rconi/4
+				tempWord.bytes[0] ^= Matrix_RCon[i/4];
+				
 				//apply the addition (XOR?)of 't' aka tempWord
+
+				cout << "---- the t value for round " << i/4<<" ----\n";
+				tempWord.print();
+
 				for(int l = 0; l < 4; l++)
 				{
 					keyWords[i].bytes[l] = tempWord.bytes[l] ^ keyWords[i-6].bytes[l];
@@ -365,13 +320,33 @@ int main()
 	else if(keySize == 256)
 	{
 		Word tempWord;
-		for(int i = 6; i < numKeyWords; i++)
+		for(int i = 8; i < numKeyWords; i++)
 		{
-			if(i%6 != 0)
+			if(i%8 != 0)
 			{
-				for(int j = 0; j < 4; j++)
+				//check for the additional step needed for 256
+				//this is subsection 2.c. of pg 212 from the textbook
+				if(i%4 == 0)
 				{
-					keyWords[i].bytes[j] = keyWords[i-1].bytes[j] ^ keyWords[i-6].bytes[j];
+					for(int j = 0; j < 4; j++)
+					{
+						tempWord.bytes[j] = keyWords[i-1].bytes[j];
+					}
+					//perform the SubWord
+					SubWord(tempWord);
+
+					for(int j = 0; j < 4; j++)
+					{
+						tempWord.bytes[j] ^= keyWords[i-8].bytes[j];
+					}
+				}
+				else
+				{
+					for(int j = 0; j < 4; j++)
+					{
+						keyWords[i].bytes[j] = keyWords[i-1].bytes[j] ^ keyWords[i-8].bytes[j];
+
+					}
 				}
 			}
 			else
@@ -406,6 +381,7 @@ int main()
 
 	for(int i = 0; i < numKeyWords; i++)
 	{
+		cout<<"Word " << dec << i <<"\n";
 		keyWords[i].print();
 	}
 
