@@ -12,6 +12,7 @@
 // 04/25/2017 | DS | Added the new print() function after each state.  Using test matrix.
 // 04/26/2017 | DS | Added in the key input, numRounds stuff.  Code cleanup.
 // 04/27/2017 | DS | Work on the key expansion.  KeyWords[0] to KeyWords[groupsize] working.
+// 04/27/2017 | DS | Adding appropriate keyWords to keys (array of states).
 
 #include <iostream>
 #include <fstream>
@@ -206,11 +207,20 @@ int main()
 
 	//copy the 'string' variable into a character array
 	char keyChars[keySizeChar + 1];
-	strncpy(keyChars, keyString.c_str(), sizeof(keyChars));
+	
+	//TODO: uncomment the following line to get the input key.txt
+	//strncpy(keyChars, keyString.c_str(), sizeof(keyChars));
+
+	for(int i = 0; i < keySizeChar; i++)
+	{
+		keyChars[i] = Matrix_TestKey[i];
+	}
+
 	keyChars[keySizeChar + 1] = '\0'; //add this null guy to the end
 
 	//declare our array of keys that will be populated with the key expansions
 	Word keyWords[numKeyWords]; //the total "words" to be populated
+	//TODO: remove the following???
 	State keys[numKeys]; //a "state" consists of 4 words i.e. 16 bytes total
 
 	//perform the initial population for keyWords[0] to keyWords[groupSize] 
@@ -224,28 +234,180 @@ int main()
 		offset += 4;
 	}
 
-	cout << "\n---- Naked key follows: ----\n";
+	cout << "\n---- Naked keyWords [0-groupSize] follows: ----\n";
 
 	for(int i = 0; i < groupSize; i++)
 	{
 		keyWords[i].print();
 	}
 
-	//now that we have the first group populated we can plug...
-	//...into the appropriate key[0] state and possibly key[1]? 
-	//depends on keySize if naked key spills into key[1]
+	//TODO: the following two loops are PROBABLY unnecessary 
+	//TODO: the keyWords need to be populated first
 
-/*
-	cout << "keys[0] follows: \n";
-	keys[0].print();
+	/*
+	int keyWordIndex = 0;
+	for(int i = 0; i < 4; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+			keys[0].bytes[i][j] = keyWords[keyWordIndex].bytes[j];
+		}
+		keyWordIndex++;
+	}
 
-	cout << "keys[1] follows: \n";
-	keys[1].print();
-*/
-	//perform the population for the rest of the keys
+	if(groupSize > 4)
+	{
+		for(int i = 4; i < groupSize; i++)
+		{
+			for(int j = 0; j < 4; j++)
+			{
+				keys[1].bytes[i%4][j] = keyWords[keyWordIndex].bytes[j];
+			}
+			keyWordIndex++;
+		}
+	}
+	*/
 
+	//compute the rest of the keyWords
+	//TODO: there is probably a better way to do this (use groupsize and %'s)
+	if(keySize == 128)
+	{
+		Word tempWord;
+		for(int i = 4; i < numKeyWords; i++)
+		{
+			if(i%4 != 0)
+			{
+				for(int j = 0; j < 4; j++)
+				{
+					keyWords[i].bytes[j] = keyWords[i-1].bytes[j] ^ keyWords[i-4].bytes[j];
+				}
+			}
+			else
+			{
+				for(int k = 0; k < 4; k++)
+				{
+					tempWord.bytes[k] = keyWords[i-1].bytes[k]; //initially populate the tempword		
+				}
+				//perform the rotation
+				RotWord(tempWord);
+				//apply the subword
+				SubWord(tempWord);
+				//XOR it with Rconi/4
+				for(int k = 0; k < 4; k++)
+				{
+					tempWord.bytes[k] ^= Matrix_RCon[i/4];
+				}
+				//apply the addition (XOR?)of 't' aka tempWord
+
+				cout << "---- the t value for round " << i/4<<" ----\n";
+				tempWord.print();
+
+				for(int l = 0; l < 4; l++)
+				{
+					keyWords[i].bytes[l] = tempWord.bytes[l] + keyWords[i-4].bytes[l];
+				}
+			}	
+		}
+	}
+	else if(keySize == 192)
+	{
+		Word tempWord;
+		for(int i = 6; i < numKeyWords; i++)
+		{
+			if(i%8 != 0)
+			{
+				if(i%4 == 0)
+				{
+					for(int j = 0; j < 4; j++)
+					{
+						tempWord.bytes[j] = keyWords[i-1].bytes[j];
+					}
+					//now tempWord is populated with keyWords[i-1] data
+					SubWord(tempWord);
+					for(int j = 0; j < 4; j++)
+					{
+						//perform the addition
+						keyWords[i].bytes[j] = tempWord.bytes[j] ^ keyWords[i-8].bytes[j];
+					}
+				}
+				else
+				{
+					for(int j = 0; j < 4; j++)
+					{
+						keyWords[i].bytes[j] = keyWords[i-1].bytes[j] ^ keyWords[i-8].bytes[j];
+					}
+				}
+				
+			}
+			else
+			{
+				for(int k = 0; k < 4; k++)
+				{
+					tempWord.bytes[k] = keyWords[i-1].bytes[k]; //initially populate the tempword		
+				}
+				//perform the rotation
+				RotWord(tempWord);
+				//apply the subword
+				SubWord(tempWord);
+				//XOR it with Rcon[i/4]
+				for(int k = 0; k < 4; k++)
+				{
+					tempWord.bytes[k] ^= Matrix_RCon[i/4];
+				}
+				//apply the addition (XOR?)of 't' aka tempWord
+				for(int l = 0; l < 4; l++)
+				{
+					keyWords[i].bytes[l] = tempWord.bytes[l] ^ keyWords[i-6].bytes[l];
+				}
+			}	
+		}
+	}
+	else if(keySize == 256)
+	{
+		Word tempWord;
+		for(int i = 6; i < numKeyWords; i++)
+		{
+			if(i%6 != 0)
+			{
+				for(int j = 0; j < 4; j++)
+				{
+					keyWords[i].bytes[j] = keyWords[i-1].bytes[j] ^ keyWords[i-6].bytes[j];
+				}
+			}
+			else
+			{
+				for(int k = 0; k < 4; k++)
+				{
+					tempWord.bytes[k] = keyWords[i-1].bytes[k]; //initially populate the tempword		
+				}
+				//perform the rotation
+				RotWord(tempWord);
+				//apply the subword
+				SubWord(tempWord);
+				//XOR it with Rcon[i/4]
+				for(int k = 0; k < 4; k++)
+				{
+					tempWord.bytes[k] ^= Matrix_RCon[i/4];
+				}
+				//apply the addition (XOR?)of 't' aka tempWord
+				for(int l = 0; l < 4; l++)
+				{
+					keyWords[i].bytes[l] = tempWord.bytes[l] ^ keyWords[i-8].bytes[l];
+				}
+			}	
+		}
+	}
+	else
+	{
+		//something went wrong...
+	}
 	
+	cout<< "---- after the expansion ----";
 
+	for(int i = 0; i < numKeyWords; i++)
+	{
+		keyWords[i].print();
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////
 	// THE REST OF THE FILE IS FOR TESTING PURPOSES ONLY
