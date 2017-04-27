@@ -208,9 +208,11 @@ int main()
 	//copy the 'string' variable into a character array
 	char keyChars[keySizeChar + 1];
 	
-	//TODO: uncomment the following line to get the input key.txt
-	//strncpy(keyChars, keyString.c_str(), sizeof(keyChars));
+	//following line to get the input key.txt
+	strncpy(keyChars, keyString.c_str(), sizeof(keyChars));
 
+	//uncomment the following loop to populate with dummy data as per
+	//pg 210 from the textbook
 	for(int i = 0; i < keySizeChar; i++)
 	{
 		keyChars[i] = Matrix_TestKey[i];
@@ -221,23 +223,19 @@ int main()
 	//declare our array of keys that will be populated with the key expansions
 	Word keyWords[numKeyWords]; //the total "words" to be populated
 
-	//TODO: remove the following???
-	State keys[numKeys]; //a "state" consists of 4 words i.e. 16 bytes total
-
 	//perform the initial population for keyWords[0] to keyWords[groupSize] 
 	int offset = 0;
 	for(int i = 0; i < groupSize; i++)
 	{
 		for(int j = offset; j < offset + 4; j++)
 		{
-			//TODO: does this need to be 4*i???
 			keyWords[i].bytes[j%4] = keyChars[j]; 
 		}
 		offset += 4;
 	}
 
 	//compute the rest of the keyWords
-	//TODO: there is probably a better way to do this (use groupsize and %'s)
+	//TODO: modularize this (use groupsize and %'s) (maybe a function) !!
 	if(keySize == 128)
 	{
 		Word tempWord;
