@@ -11,6 +11,7 @@
 // 04/24/2017 | DS | Plugged in ByteSub and InvByteSub things.
 // 04/25/2017 | DS | Added the new print() function after each state.  Using test matrix.
 // 04/26/2017 | DS | Added in the key input, numRounds stuff.  Code cleanup.
+// 04/27/2017 | DS | Work on the key expansion.  KeyWords[0] to KeyWords[groupsize] working.
 
 #include <iostream>
 #include <fstream>
@@ -49,11 +50,11 @@ int main()
 	ifstream message, key;
 	ofstream ciphertext;
 	string messageName, keyName;
-	int keySize = -1;
-	int numRounds = -1; //dependent on the keysize
-	int numKeys = -1;
-	int numWords = -1;
-	int groupSize = -1; //the number of 'words' in each group of key expansions
+	int keySize 	= -1; //126, 192, or 256
+	int numRounds 	= -1; //dependent on the keysize
+	int numKeys 	= -1; //includes 'groupsize' number of keywords
+	int numKeyWords = -1; //for the key expansion
+	int groupSize 	= -1; //the number of 'words' in each group of key expansions
 
 	printf("\nAES\n");
 	printf("\nBy David Shimkus and Michael Caponi\n\n");
@@ -86,7 +87,7 @@ int main()
 			keySize   = 128; 
 			numRounds = 10; 
 			numKeys   = 11;  //could also be numRounds + 1 (?)
-			numWords  = 44;
+			numKeyWords  = 44;
 			groupSize = 4;
 			break;
 		} 
@@ -95,7 +96,7 @@ int main()
 			keySize   = 192; 
 			numRounds = 12; 
 			numKeys   = 13;
-			numWords  = 52;
+			numKeyWords  = 52;
 			groupSize = 6;
 			break;
 		} 
@@ -104,7 +105,7 @@ int main()
 			keySize   = 256; 
 			numRounds = 14; 
 			numKeys   = 15;
-			numWords  = 60;
+			numKeyWords  = 60;
 			groupSize = 8;
 			break;
 		}
@@ -209,26 +210,46 @@ int main()
 	keyChars[keySizeChar + 1] = '\0'; //add this null guy to the end
 
 	//declare our array of keys that will be populated with the key expansions
-	Word keys[numWords];
+	Word keyWords[numKeyWords]; //the total "words" to be populated
+	State keys[numKeys]; //a "state" consists of 4 words i.e. 16 bytes total
 
-	//perform the initial population for key[0] to key
+	//perform the initial population for keyWords[0] to keyWords[groupSize] 
 	int offset = 0;
 	for(int i = 0; i < groupSize; i++)
 	{
 		for(int j = offset; j < offset + 4; j++)
 		{
-			keys[i].bytes[j%4] = keyChars[j];
+			keyWords[i].bytes[j%4] = keyChars[j]; 
 		}
 		offset += 4;
 	}
 
+	cout << "\n---- Naked key follows: ----\n";
 
-
-	for(int i = 0; i < numWords; i++)
+	for(int i = 0; i < groupSize; i++)
 	{
-		keys[i].print();
-		cout << dec << i << endl;
+		keyWords[i].print();
 	}
+
+	//now that we have the first group populated we can plug...
+	//...into the appropriate key[0] state and possibly key[1]? 
+	//depends on keySize if naked key spills into key[1]
+
+/*
+	cout << "keys[0] follows: \n";
+	keys[0].print();
+
+	cout << "keys[1] follows: \n";
+	keys[1].print();
+*/
+	//perform the population for the rest of the keys
+
+	
+
+
+	/////////////////////////////////////////////////////////////////////////////////
+	// THE REST OF THE FILE IS FOR TESTING PURPOSES ONLY
+	/////////////////////////////////////////////////////////////////////////////////
 
 	//populate with the temp matrix on page 199
 	//note this temp matrix is defined in Matrices.h
@@ -292,6 +313,13 @@ int main()
 	SubWord(tempWord);
 
 	cout << "---- AFTER SUB WORD ----\n";
+	tempWord.print();
+
+	//attempt to calculate t using the RCon
+
+	tempWord.bytes[0] ^= Matrix_RCon[1];
+
+	cout << "---- AFTER THE XOR ATTEMPT ----";
 	tempWord.print();
 
 	return 0;
