@@ -209,25 +209,20 @@ int main()
 	keyChars[keySizeChar + 1] = '\0'; //add this null guy to the end
 
 	//declare our array of keys that will be populated with the key expansions
-	Word keyWords[numWords];
+	Word keys[numWords];
 
-	//perform the initial population for key[0] to key[groupsize]
+	//perform the initial population for key[0] to key
 	int offset = 0;
 	for(int i = 0; i < groupSize; i++)
 	{
 		for(int j = offset; j < offset + 4; j++)
 		{
-			keyWords[i].bytes[j%4] = keyChars[j];
+			keys[i].bytes[j%4] = keyChars[j];
 		}
 		offset += 4;
 	}
 
-	//perform the rest of the expansions
-	for(int i = groupSize; i < numWords; i += groupSize)
-	{
-		Word temp;
 
-	}
 
 	for(int i = 0; i < numWords; i++)
 	{
@@ -279,6 +274,25 @@ int main()
 	cout << "---- AFTER INV BYTE SUB ----\n";
 	testState.print();
 
+	//testing purposes only
+	Word tempWord;
+	for(int i = 0; i < 4; i++)
+	{
+		tempWord.bytes[i] = Matrix_TestRijndael[i];
+	}
+
+	cout << "---- ORIGINAL WORD ----\n";
+	tempWord.print();
+
+	RotWord(tempWord);
+
+	cout << "---- AFTER ROT WORD ----\n";
+	tempWord.print();
+
+	SubWord(tempWord);
+
+	cout << "---- AFTER SUB WORD ----\n";
+	tempWord.print();
 
 	return 0;
 }

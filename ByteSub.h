@@ -14,6 +14,8 @@
 #include "State.h"
 #include "Matrices.h"
 
+using namespace std;
+
 void ByteSub(State &input);
 
 void InvByteSub(State &input);

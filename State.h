@@ -20,7 +20,6 @@ using namespace std;
 
 struct State
 {
-
     unsigned char bytes[4][4];
     int ByteSub_values[4][4];
 
@@ -44,7 +43,7 @@ struct Word
     void print()
     {
         cout << endl;
-        cout << "{ " << setfill('0') << setw(2) << hex << (int)bytes[0] << ", " << setfill('0') << setw(2) << hex << (int)bytes[1] << ", " << setfill('0') << setw(2) << hex << (int)bytes[2] << ", " << setfill('0') << setw(2) << hex << (int)bytes[3] << " }\n";
+        cout << "{ " << setfill('0') << setw(2) << hex << (int)bytes[0] << ", " << setfill('0') << setw(2) << hex << (int)bytes[1] << ", " << setfill('0') << setw(2) << hex << (int)bytes[2] << ", " << setfill('0') << setw(2) << hex << (int)bytes[3] << " }\n\n";
     }
 };
 

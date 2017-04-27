@@ -23,6 +23,7 @@ using namespace std;
 #include "State.h"
 #include "MultInverse.cpp"
 #include "Matrices.h"
+#include "KeyExpansion.h"
 
 void ByteSub(State &input)
 {

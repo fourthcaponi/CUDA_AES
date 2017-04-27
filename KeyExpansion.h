@@ -11,6 +11,9 @@
 #ifndef KEY_EXP_H
 #define KEY_EXP_H
 
-void KeyExpansion(Word &keys, int groupSize, int round);
+using namespace std;
+
+void RotWord(Word &word);
+void SubWord(Word &word);
 
 #endif
