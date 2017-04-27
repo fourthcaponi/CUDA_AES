@@ -9,6 +9,7 @@
 // 04/23/2017 | DS | Creation.
 // 04/24/2017 | DS | Added ByteSub and InvByteSub matrices.
 // 04/25/2017 | DS | Added the test matrix from the book.
+// 04/26/2017 | DS | Added the key expansion 't' constants.
 
 #ifndef MATRICES_H
 #define MATRICES_H
@@ -61,5 +62,10 @@ const int Matrix_TestInput[][4] = {
 	{0x14, 0x00, 0x11, 0x19}
 };
 
+const int Matrix_KeyExpansionT[][4] = {
+    {0xad, 0x20, 0x17, 0x7d},
+    {0x47, 0x06, 0x78, 0xdb},
+    
+}
 
 #endif

@@ -10,6 +10,7 @@
 // 04/12/2017 | DS | Worked on the 'chunks' portion more.  BLOCK_SIZE char vs bit fixed.
 // 04/24/2017 | DS | Plugged in ByteSub and InvByteSub things.
 // 04/25/2017 | DS | Added the new print() function after each state.  Using test matrix.
+// 04/26/2017 | DS | Added in the key input, numRounds stuff.  Code cleanup.
 
 #include <iostream>
 #include <fstream>
@@ -29,14 +30,14 @@
 #include "KeyAdd.h"
 #include "State.h"
 #include "Matrices.h" //for the test input matrix
+#include "KeyExpansion.h"
 
 using namespace std;
 
 #define BLOCK_SIZE_BIT 128
 #define BLOCK_SIZE_CHAR 16   //a single character is stored as a byte, so 16 bytes = 128 bits
-#define MAX_MSG_LENGTH 10000 //TODO: let program handle MUCH larger messages
 
-//ended up storing everything in this struct for the vector implementation
+//this struct for the array of blocks implementation
 struct block
 {
 	char text[BLOCK_SIZE_CHAR]; //divide by 8 b/c 1 char = 1 byte
@@ -49,6 +50,10 @@ int main()
 	ofstream ciphertext;
 	string messageName, keyName;
 	int keySize = -1;
+	int numRounds = -1; //dependent on the keysize
+	int numKeys = -1;
+	int numWords = -1;
+	int groupSize = -1; //the number of 'words' in each group of key expansions
 
 	printf("\nAES\n");
 	printf("\nBy David Shimkus and Michael Caponi\n\n");
@@ -76,10 +81,34 @@ int main()
 
 		switch (selection)
 		{
-		case  1: keySize = 128; break;
-		case  2: keySize = 192; break;
-		case  3: keySize = 256; break;
-		default: keySize = -1;
+		case  1:
+		{
+			keySize   = 128; 
+			numRounds = 10; 
+			numKeys   = 11;  //could also be numRounds + 1 (?)
+			numWords  = 44;
+			groupSize = 4;
+			break;
+		} 
+		case  2:
+		{
+			keySize   = 192; 
+			numRounds = 12; 
+			numKeys   = 13;
+			numWords  = 52;
+			groupSize = 6;
+			break;
+		} 
+		case  3: 
+		{
+			keySize   = 256; 
+			numRounds = 14; 
+			numKeys   = 15;
+			numWords  = 60;
+			groupSize = 8;
+			break;
+		}
+		default: keySize = -1; //bad input
 		}
 
 		if (keySize == -1)
@@ -110,32 +139,21 @@ int main()
 	}
 
 	//find message length in CHARACTERS
-	//struct stat st;
-	//int messageSizeChar = stat(messageName.c_str(), &st);
 	int messageSizeChar = 0;
 	string line;
 	while(getline(message, line))
 	{
 		messageSizeChar += line.length() + 1;//add 1 for the newline character
 	}
-	
-	//cout << "messageSizeChar: " << messageSizeChar << "\n";//works.
-
-	//TODO:
-	//int messageSizeBits = messageSizeChar * 8; //multiply by 8 to convert bytes to bits
 
 	//find out how many blocks we will need
 	double	numBlocksD = (double)messageSizeChar / (double)BLOCK_SIZE_CHAR;
 	int		numBlocks  = messageSizeChar / BLOCK_SIZE_CHAR;
-	//cout << "numBlocksD: " << numBlocksD << "\n";
-	//cout << "numBlocks : " << numBlocks << "\n";
 	if (numBlocksD > numBlocks)
 	{
 		//if there is a 'fraction' of a whole block we still need an extra block
 		numBlocks++;
 	}
-
-	//cout << "Num blocks: " << numBlocks << "\n\n";
 
 	//return to the beginning of the message stream
 	message.clear();
@@ -146,28 +164,10 @@ int main()
 	buffer << message.rdbuf();
 	string messageString = buffer.str();
 
-	//printf(messageString.c_str());
-
-	cout << "messageString.length(): " << messageString.length() << "\n\n";
-
 	//copy the 'string' variable into a character array
 	char messageChars[messageSizeChar + 1];
 	strncpy(messageChars, messageString.c_str(), sizeof(messageChars));
 	messageChars[messageSizeChar + 1] = '\0'; //add this null guy to the end
-
-	//printf(messageChars);
-
-	cout << "\n\n";
-
-	//uncomment out the following to view the entire input file as char array
-	//for(int i = 0; i < messageSizeChar; i++)
-	//{
-	//	printf("\nmessageChars[%i]: %c", i, messageChars[i]);
-	//}
-
-	cout << "\n\n";
-
-	//printf(messageChars);
 
 	//split the message into chunks
 	block blocks[numBlocks];
@@ -177,8 +177,6 @@ int main()
 		counter = i * BLOCK_SIZE_CHAR;
 		for(int j = 0; j < BLOCK_SIZE_CHAR; j++)
 		{
-			//char c = new char((char)messageChars[counter]);
-			//blocks[i].text[j] = c;
 			blocks[i].text[j] = messageChars[counter];
 			counter++;
 		}
@@ -187,71 +185,55 @@ int main()
 	//OK so at this point the 'blocks' variable contains an array
 	//of struct block's which contain the '.text' field that can
 	//be passed to different portions of AES as appropriate
-
 	//i.e. if we are going to pass the 3rd 'block' to AES it would
 	//be the 3rd chunk of 128 bits i.e. 16 characters i.e. blocks[2].text
 
 	//printf("%.*s\n", BLOCK_SIZE_CHAR, blocks[2].text);
 	//printf(blocks[2].text);
 
-	//convert ALL characters to their hex representation
-	/*
-	char a = 'Z';
+	//now we need to get the input key - we will need it for key expansion
+	int keySizeChar = keySize / 8; //divide by 8 to convert bits to bytes
 
-	cout << "ASCII: " << a << endl;
+	//return to the beginning of the key stream
+	key.clear();
+	key.seekg(0, ios::beg);
 
-	int temp = a;
-	cout << "Decimal: " << temp << endl;
+	//actually grab the contents and place into a string
+	stringstream buffer2;
+	buffer2 << key.rdbuf();
+	string keyString = buffer2.str();
 
-	stringstream ss;
-	ss << hex << temp; // int decimal_value
-	//ss << hex << messageString; //for the entire input string
-	
-	string res ( ss.str() );
+	//copy the 'string' variable into a character array
+	char keyChars[keySizeChar + 1];
+	strncpy(keyChars, keyString.c_str(), sizeof(keyChars));
+	keyChars[keySizeChar + 1] = '\0'; //add this null guy to the end
 
-	cout << "HEX: " << res << endl;
-	*/
+	//declare our array of keys that will be populated with the key expansions
+	Word keyWords[numWords];
 
-
-	//cout << temp;
-
-	//TODO: actually implement AES LOL
-
-
-	//for each block
-	//create initial state from the input block
-	//perform initial key addition -> OUTPUT A STATE
-
-	//ROUNDS
-
-	//BYTE SUB
-	//take that state in as input
-	//state outputBS = ByteSub(outputOfInitialKeyAddition);
-
-
-
-	/*
-	State tempState;
-
-	
-	//the following is to populate from the input message
-	int k = 0;
-	int l = 0;
-
-	for(int i = 0; i < 4; i++)
+	//perform the initial population for key[0] to key[groupsize]
+	int offset = 0;
+	for(int i = 0; i < groupSize; i++)
 	{
-		for(int j = 0; j < 4; j++)
+		for(int j = offset; j < offset + 4; j++)
 		{
-			
-			//TODO: make sure the elements in the state's matrix don't get populated vertically(?)
-
-			tempState.bytes[j][i] = blocks[k].text[l];
-
-			l++;
-
+			keyWords[i].bytes[j%4] = keyChars[j];
 		}
+		offset += 4;
 	}
-	*/
+
+	//perform the rest of the expansions
+	for(int i = groupSize; i < numWords; i += groupSize)
+	{
+		Word temp;
+
+	}
+
+	for(int i = 0; i < numWords; i++)
+	{
+		keys[i].print();
+		cout << dec << i << endl;
+	}
 
 	//populate with the temp matrix on page 199
 	//note this temp matrix is defined in Matrices.h
@@ -271,7 +253,7 @@ int main()
 
 	cout << "---- AFTER BYTE SUB ----\n";
 	testState.print();
-
+	
 	ShiftRow(testState);
 
 	cout << "---- AFTER SHIFT ROW ----\n";
@@ -282,6 +264,20 @@ int main()
 	cout << "---- AFTER MIX COLUMN ----\n";
 	testState.print();
 
+	InvMixColumn(testState);
+
+	cout << "---- AFTER INV MIX COLUMN --\n";
+	testState.print();
+
+	InvShiftRow(testState);
+
+	cout << "---- AFTER INV SHIFT ROW ---\n";
+	testState.print();
+
+	InvByteSub(testState);
+
+	cout << "---- AFTER INV BYTE SUB ----\n";
+	testState.print();
 
 
 	return 0;

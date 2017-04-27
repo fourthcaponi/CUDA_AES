@@ -7,6 +7,7 @@
 //
 // Revisions:
 // 04/19/2017 | DS | Creation.
+// 04/26/2017 | DS | Added InvKeyAdd
 
 #include <iostream>
 #include <fstream>
@@ -14,25 +15,16 @@
 #include <string>
 #include <cstring>
 #include <sys/stat.h> //for filesize
-#include <vector>
 
 using namespace std;
 
 #include "ByteSub.h"
 #include "KeyAdd.h"
 
-State KeyAdd(State input)
+//note KeyAdd is the inverse of itself
+void KeyAdd(State &input) //TODO: the key parameter
 {
-    State temp;
     
-    for(int i = 0; i < 4; i++)
-    {
-        for(int j = 0; j < 4; j++)
-        {
-            temp.bytes[i][j] = 0x63; //hex
-        }
-    }
 
 
-    return temp;
 }

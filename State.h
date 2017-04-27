@@ -8,6 +8,7 @@
 // Revisions:
 // 04/19/2017 | DS | Creation.
 // 04/25/2017 | DS | Added the print() function.
+// 04/26/2017 | DS | Added the Word struct for key expansion.
 
 #ifndef STATE_H
 #define STATE_H
@@ -33,6 +34,18 @@ struct State
     }
 
 
+};
+
+//for key expansion
+struct Word
+{
+    unsigned char bytes[4];
+
+    void print()
+    {
+        cout << endl;
+        cout << "{ " << setfill('0') << setw(2) << hex << (int)bytes[0] << ", " << setfill('0') << setw(2) << hex << (int)bytes[1] << ", " << setfill('0') << setw(2) << hex << (int)bytes[2] << ", " << setfill('0') << setw(2) << hex << (int)bytes[3] << " }\n";
+    }
 };
 
 #endif

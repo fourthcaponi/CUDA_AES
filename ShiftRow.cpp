@@ -16,7 +16,6 @@
 #include <string>
 #include <cstring>
 #include <sys/stat.h> //for filesize
-#include <vector>
 
 using namespace std;
 
@@ -42,17 +41,20 @@ void ShiftRow(State &input)
 
 void InvShiftRow(State &input)
 {  
+    int offset = 4;
     for(int i = 0; i < 4; i++)
     {
         unsigned char tempBytes[4];
         for(int j = 0; j < 4; j++)
         {
             //perform the right shift as dependent upon the row
-            tempBytes[j] = input.bytes[i][(j-i)%4];
+            tempBytes[j] = input.bytes[i][(j+offset)%4];
         }
         for(int k = 0; k < 4; k++)
         {
             input.bytes[i][k] = tempBytes[k];
         }
+        offset--;
     }
+    
 }

@@ -7,13 +7,14 @@
 //
 // Revisions:
 // 04/19/2017 | DS | Creation.
+// 04/26/2017 | DS | Changed to return void and '&'
 
 #ifndef KEY_ADD_H
 #define KEY_ADD_H
 
 #include "State.h"
 
-
-State KeyAdd(State input);
+//note KeyAdd is the inverse of itself
+void KeyAdd(State &input);
 
 #endif
