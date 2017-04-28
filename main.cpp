@@ -171,11 +171,13 @@ int main()
 	//find out how many blocks we will need
 	double numBlocksD = (double)messageSizeChar / (double)BLOCK_SIZE_CHAR;
 	int	numBlocks  = messageSizeChar / BLOCK_SIZE_CHAR;
+	bool paddingNeeded = false;
 	if (numBlocksD > numBlocks)
 	{
 		//if there is a 'fraction' of a whole block we still need an extra block
 		//TODO: eventually the unused bytes in this extra block will be populated with 0's
 		numBlocks++;
+		paddingNeeded = true;
 	}
 
 	//return to the beginning of the message stream
@@ -200,7 +202,16 @@ int main()
 		counter = i * BLOCK_SIZE_CHAR;
 		for(int j = 0; j < BLOCK_SIZE_CHAR; j++)
 		{
-			blocks[i].text[j] = messageChars[counter];
+			//pad with 0's
+			if(i == numBlocks-1 && paddingNeeded && counter >= messageSizeChar)
+			{
+				blocks[i].text[j] = '0';
+			}
+			else
+			{
+				blocks[i].text[j] = messageChars[counter];
+			}
+
 			counter++;
 		}
 	}
@@ -211,8 +222,8 @@ int main()
 	//i.e. if we are going to pass the 3rd 'block' to AES it would
 	//be the 3rd chunk of 128 bits i.e. 16 characters i.e. blocks[2].text
 
-	//printf("%.*s\n", BLOCK_SIZE_CHAR, blocks[2].text);
-	//printf(blocks[2].text);
+	//printf("%.*s\n", BLOCK_SIZE_CHAR, blocks[0].text);
+	//printf("%s",blocks[0].text);
 
 	//create an array of States out of the array of blocks
 	State states[numBlocks];
@@ -340,10 +351,6 @@ int main()
 				tempWord.bytes[0] ^= Matrix_RCon[i/4];
 				
 				//apply the addition (XOR?)of 't' aka tempWord
-
-				cout << "---- the t value for round " << i/4<<" ----\n";
-				tempWord.print();
-
 				for(int l = 0; l < 4; l++)
 				{
 					keyWords[i].bytes[l] = tempWord.bytes[l] ^ keyWords[i-6].bytes[l];
@@ -411,12 +418,17 @@ int main()
 		//something went wrong...
 	}
 	
-	//TODO: uncomment the following when it is working...
-	/*
+
+/*	
+	cout << "---- BEFORE ANYTHING: ----\n";
+	for(int i = 0; i < 2; i++)
+	{
+		states[i].print();
+	}
 
 	//perform the actual encryption or decryption using all the pieces above
-	if(method == 1)
-	{
+//	if(method == 1)
+//	{
 		//encryption
 		for(int i = 0; i < numBlocks; i++)
 		{
@@ -426,9 +438,16 @@ int main()
 				Cipher(states[i], keyWords, j, numRounds);
 			}
 		}	
-	}
-	else if(method == 2)
-	{
+
+		cout << "---- AFTER CIPHER: ----\n";
+		for(int i = 0; i < 2; i++)
+		{
+			states[i].print();
+		}
+
+//	}
+//	else if(method == 2)
+//	{
 		//decryption
 		for(int i = 0; i < numBlocks; i++)
 		{
@@ -438,11 +457,19 @@ int main()
 				Decrypt(states[i], keyWords, j, numRounds);
 			}
 		}
-	}
-	else
-	{
+
+		cout << "---- AFTER DECRYPT: ----\n";
+		for(int i = 0; i < 2; i++)
+		{
+			states[i].print();
+		}
+
+
+//	}
+//	else
+//	{
 		//something went wrong...
-	}
+//	}
 
 	//populate a buffer will all of the newly transformed state contents
 	stringstream buffer3;
@@ -465,35 +492,53 @@ int main()
 	ofstream output;
 	output.open(outputName.c_str());
 	output << buffer3.rdbuf();
+*/
+	
 
-	*/
+//TESTING PURPOSES ONLY:
+
+	cout << "---- KEYWORDS ----\n";
+	for(int i = 0; i < numBlocks; i++)
+	{
+		cout << "#" << dec << i << endl;
+		states[i].print();
+		states[i].printAscii();
+	}
+
 
 	cout << "---- BEFORE ANYTHING ----\n";
 	states[0].print();
+	states[0].printAscii();
 
-	MixColumn(states[0]);
-
-	cout << "---- AFTER MIX COLUMN ----\n";
-	states[0].print();
-
-	InvMixColumn(states[0]);
-
-	cout << "---- AFTER INV MIX COLUMN ----\n";
-	states[0].print();
-
-	Cipher(states[0], keyWords, numRounds, numRounds);
-
+	Cipher(states[0], keyWords, 0, numRounds);
+	Cipher(states[0], keyWords, 1, numRounds);
+	Cipher(states[0], keyWords, 2, numRounds);
+	Cipher(states[0], keyWords, 3, numRounds); //didnt work 
+//	Cipher(states[0], keyWords, 4, numRounds);
+	Cipher(states[0], keyWords, 5, numRounds);
+//	Cipher(states[0], keyWords, 6, numRounds);
+//	Cipher(states[0], keyWords, 7, numRounds);
+	Cipher(states[0], keyWords, 8, numRounds); //didnt work 
+	Cipher(states[0], keyWords, 9, numRounds);
+	Cipher(states[0], keyWords, 10, numRounds);
+	
 	cout << "---- AFTER CIPHER ----\n";
-	states[0].print();
 
 	Decrypt(states[0], keyWords, 0, numRounds);
+	Decrypt(states[0], keyWords, 1, numRounds);
+	Decrypt(states[0], keyWords, 2, numRounds); //didnt work 
+//	Decrypt(states[0], keyWords, 3, numRounds);
+//	Decrypt(states[0], keyWords, 4, numRounds);
+	Decrypt(states[0], keyWords, 5, numRounds);
+//	Decrypt(states[0], keyWords, 6, numRounds);
+	Decrypt(states[0], keyWords, 7, numRounds); //didnt work 
+	Decrypt(states[0], keyWords, 8, numRounds);
+	Decrypt(states[0], keyWords, 9, numRounds);
+	Decrypt(states[0], keyWords, 10, numRounds);
 
 	cout << "---- AFTER DECRYPT ----\n";
 	states[0].print();
-
-
-
-
+	states[0].printAscii();
 
 	return 0;
 }

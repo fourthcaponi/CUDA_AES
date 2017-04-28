@@ -50,7 +50,7 @@ void Cipher(State &input, Word *keyWords, int roundIndex, int numRounds)
     }
 }
 
-//note the roundIndex is BACKWARDS from how Dr. Gamage described it in class
+//note the roundIndex is BACKWARDS from how Dr. Gamage described it in class (?)
 void Decrypt(State &input, Word *keyWords, int roundIndex, int numRounds)
 {
     if(roundIndex == 0)

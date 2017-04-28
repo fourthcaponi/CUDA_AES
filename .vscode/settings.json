@@ -8,6 +8,7 @@
         "utility": "cpp",
         "fstream": "cpp",
         "sstream": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "iomanip": "cpp"
     }
 }
