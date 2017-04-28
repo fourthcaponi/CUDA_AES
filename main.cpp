@@ -13,72 +13,95 @@
 // 04/26/2017 | DS | Added in the key input, numRounds stuff.  Code cleanup.
 // 04/27/2017 | DS | Work on the key expansion.  KeyWords[0] to KeyWords[groupsize] working.
 // 04/27/2017 | DS | Adding appropriate keyWords to keys (array of states).
+// 04/27/2017 | DS | Removed array of key states - only going to use keyWords now.  Key Addition worked on.
+// 04/28/2017 | DS | Placed much of this file into Cipher.cpp.  Code cleanup.
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <cstring>
-#include <sys/stat.h> //for filesize
-#include <vector>
-#include <stdlib.h>
-#include <stdio.h>
-#include <iomanip>
+#include <iostream>			//for grabbing user input
+#include <fstream>			//file i/o
+#include <sstream>			//used for string manipulation
+#include <string>			//for grabbing user input
+#include <cstring>			//converts strings to 'c style' strings
+#include <sys/stat.h> 		//for filesize	
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <iomanip>
 
 //the external files
-#include "ByteSub.h"
-#include "ShiftRow.h"
-#include "MixColumn.h"
-#include "KeyAdd.h"
-#include "State.h"
-#include "Matrices.h" //for the test input matrix
-#include "KeyExpansion.h"
+#include "ByteSub.h"		//for ByteSub() and InvByteSub()
+#include "ShiftRow.h"		//for ShiftRow() and InvShiftRow()
+#include "MixColumn.h"		//for MixColumn() and InvMixColumn()
+#include "KeyAdd.h"			//for KeyAdd()
+#include "State.h"			//for struct Block, State, Word
+#include "Matrices.h" 		//for test matrices as well as S-boxes
+#include "KeyExpansion.h"	//for RotWord and SubWord
+#include "Cipher.h"
 
 using namespace std;
 
 #define BLOCK_SIZE_BIT 128
-#define BLOCK_SIZE_CHAR 16   //a single character is stored as a byte, so 16 bytes = 128 bits
-
-//this struct for the array of blocks implementation
-struct block
-{
-	char text[BLOCK_SIZE_CHAR]; //divide by 8 b/c 1 char = 1 byte
-};
+#define BLOCK_SIZE_CHAR 16
 
 //TODO: accept keysize, filenames as arguments
 int main()
 {
 	ifstream message, key;
-	ofstream ciphertext;
 	string messageName, keyName;
 	int keySize 	= -1; //126, 192, or 256
 	int numRounds 	= -1; //dependent on the keysize
-	int numKeys 	= -1; //includes 'groupsize' number of keywords
 	int numKeyWords = -1; //for the key expansion
 	int groupSize 	= -1; //the number of 'words' in each group of key expansions
 
 	printf("\nAES\n");
-	printf("\nBy David Shimkus and Michael Caponi\n\n");
+	printf("\nBy David Shimkus and Michael Caponi\n");
 	
 	//TODO: if arguments are passed in do not do this input/output printf stuff
 
+	//check to see if we are encrypting our decrypting the input message
+	int method = 0;
+	bool done = false;
+	while(!done)
+	{
+		printf("\nWhat do you want to do?\n");
+		printf("1. Encrypt a text file.\n");
+		printf("2. Decrypt a text file.\n");
+		printf("Selection: ");
+		cin >> method;
+		if(method == 1 || method == 2)
+		{
+			done = true;
+		}
+	}
+
 	//TODO: grab the PATH not just the filename (so can look at entire system not just local directory)
-	printf("Please enter the input message filename: ");
+	if(method == 1)
+	{
+		//Encryption
+		printf("\nPlease enter the plaintext filename: ");
+	}
+	else if(method == 2)
+	{
+		//Decryption
+		printf("\nPlease enter the ciphertext filename: ");
+	}
+	else
+	{
+		//Should never print
+		printf("\nPlease enter the message filename: ");
+	}
 	cin >> messageName;
 
 	message.open(messageName.c_str());
 	//TODO: file i/o error handling
 
 	int selection;
-	bool done = false;
+	done = false;
 	while (!done)
 	{
-		printf("\nWhat is the size of the key?");
-		printf("\n1. 128 bit");
-		printf("\n2. 192 bit");
-		printf("\n3. 256 bit");
-		printf("\nSelection: ");
-
+		printf("\nWhat is the size of the key?\n");
+		printf("1. 128 bit\n");
+		printf("2. 192 bit\n");
+		printf("3. 256 bit\n");
+		printf("Selection: ");
 		cin >> selection;
 
 		switch (selection)
@@ -87,7 +110,6 @@ int main()
 		{
 			keySize   = 128; 
 			numRounds = 10; 
-			numKeys   = 11;  //could also be numRounds + 1 (?)
 			numKeyWords  = 44;
 			groupSize = 4;
 			break;
@@ -96,7 +118,6 @@ int main()
 		{
 			keySize   = 192; 
 			numRounds = 12; 
-			numKeys   = 13;
 			numKeyWords  = 52;
 			groupSize = 6;
 			break;
@@ -105,7 +126,6 @@ int main()
 		{
 			keySize   = 256; 
 			numRounds = 14; 
-			numKeys   = 15;
 			numKeyWords  = 60;
 			groupSize = 8;
 			break;
@@ -140,7 +160,7 @@ int main()
 		}
 	}
 
-	//find message length in CHARACTERS
+	//find message length in CHARACTERS/BYTES
 	int messageSizeChar = 0;
 	string line;
 	while(getline(message, line))
@@ -149,11 +169,12 @@ int main()
 	}
 
 	//find out how many blocks we will need
-	double	numBlocksD = (double)messageSizeChar / (double)BLOCK_SIZE_CHAR;
-	int		numBlocks  = messageSizeChar / BLOCK_SIZE_CHAR;
+	double numBlocksD = (double)messageSizeChar / (double)BLOCK_SIZE_CHAR;
+	int	numBlocks  = messageSizeChar / BLOCK_SIZE_CHAR;
 	if (numBlocksD > numBlocks)
 	{
 		//if there is a 'fraction' of a whole block we still need an extra block
+		//TODO: eventually the unused bytes in this extra block will be populated with 0's
 		numBlocks++;
 	}
 
@@ -171,7 +192,7 @@ int main()
 	strncpy(messageChars, messageString.c_str(), sizeof(messageChars));
 	messageChars[messageSizeChar + 1] = '\0'; //add this null guy to the end
 
-	//split the message into chunks
+	//split the message into block chunks
 	block blocks[numBlocks];
 	int counter = 0;
 	for(int i = 0; i < numBlocks; i++)
@@ -193,6 +214,22 @@ int main()
 	//printf("%.*s\n", BLOCK_SIZE_CHAR, blocks[2].text);
 	//printf(blocks[2].text);
 
+	//create an array of States out of the array of blocks
+	State states[numBlocks];
+	int blockTextIndex = 0;
+	for(int i = 0; i < numBlocks; i++)
+	{
+		blockTextIndex = 0;
+		for(int j = 0; j < 4; j++)
+		{
+			for(int k = 0; k < 4; k++)
+			{
+				states[i].bytes[j][k] = blocks[i].text[blockTextIndex];
+				blockTextIndex++;
+			}
+		}
+	}
+
 	//now we need to get the input key - we will need it for key expansion
 	int keySizeChar = keySize / 8; //divide by 8 to convert bits to bytes
 
@@ -207,22 +244,23 @@ int main()
 
 	//copy the 'string' variable into a character array
 	char keyChars[keySizeChar + 1];
-	
-	//following line to get the input key.txt
 	strncpy(keyChars, keyString.c_str(), sizeof(keyChars));
 
 	//uncomment the following loop to populate with dummy data as per
-	//pg 210 from the textbook
+	//pg 210 from the textbook (only works if 128 selected)
+	/*
 	for(int i = 0; i < keySizeChar; i++)
 	{
 		keyChars[i] = Matrix_TestKey[i];
 	}
+	*/
 
 	keyChars[keySizeChar + 1] = '\0'; //add this null guy to the end
 
 	//declare our array of keys that will be populated with the key expansions
 	Word keyWords[numKeyWords]; //the total "words" to be populated
 
+	//begin key expansion
 	//perform the initial population for keyWords[0] to keyWords[groupSize] 
 	int offset = 0;
 	for(int i = 0; i < groupSize; i++)
@@ -260,14 +298,10 @@ int main()
 				//apply the subword
 				SubWord(tempWord);
 
-				//XOR the [0]'th byte it with Rconi/4
+				//XOR the [0]'th byte with RCon[i/4]
 				tempWord.bytes[0] ^= Matrix_RCon[i/4];
 				
 				//apply the addition (XOR?)of 't' aka tempWord
-
-				cout << "---- the t value for round " << i/4<<" ----\n";
-				tempWord.print();
-
 				for(int l = 0; l < 4; l++)
 				{
 					keyWords[i].bytes[l] = tempWord.bytes[l] ^ keyWords[i-4].bytes[l];
@@ -277,6 +311,7 @@ int main()
 	}
 	else if(keySize == 192)
 	{
+		//note: this is basically the same as 128 bit except for 6 word "groups" instead of 4
 		Word tempWord;
 		for(int i = 4; i < numKeyWords; i++)
 		{
@@ -284,6 +319,7 @@ int main()
 			{
 				for(int j = 0; j < 4; j++)
 				{
+					//note the keyWords[i-6] here instead of [i-4]
 					keyWords[i].bytes[j] = keyWords[i-1].bytes[j] ^ keyWords[i-6].bytes[j];
 				}
 			}
@@ -375,88 +411,89 @@ int main()
 		//something went wrong...
 	}
 	
-	cout<< "---- after the expansion ----";
+	//TODO: uncomment the following when it is working...
+	/*
 
-	for(int i = 0; i < numKeyWords; i++)
+	//perform the actual encryption or decryption using all the pieces above
+	if(method == 1)
 	{
-		cout<<"Word " << dec << i <<"\n";
-		keyWords[i].print();
+		//encryption
+		for(int i = 0; i < numBlocks; i++)
+		{
+			for(int j = 0; j <= numRounds; j++)
+			{
+				//where the magic happens
+				Cipher(states[i], keyWords, j, numRounds);
+			}
+		}	
+	}
+	else if(method == 2)
+	{
+		//decryption
+		for(int i = 0; i < numBlocks; i++)
+		{
+			for(int j = 0; j <= numRounds; j++)
+			{
+				//where the "un-magic" happens
+				Decrypt(states[i], keyWords, j, numRounds);
+			}
+		}
+	}
+	else
+	{
+		//something went wrong...
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////
-	// THE REST OF THE FILE IS FOR TESTING PURPOSES ONLY
-	/////////////////////////////////////////////////////////////////////////////////
-
-	//populate with the temp matrix on page 199
-	//note this temp matrix is defined in Matrices.h
-	State testState; 
-	for(int i = 0; i < 4; i++)
+	//populate a buffer will all of the newly transformed state contents
+	stringstream buffer3;
+	for(int i = 0; i < numBlocks; i++)
 	{
 		for(int j = 0; j < 4; j++)
 		{
-			testState.bytes[i][j] = Matrix_TestInput[i][j];
+			for(int k = 0; k < 4; k++)
+			{
+				//cout << "\n" << states[i].bytes[j][k];
+				buffer3 << (char)states[i].bytes[j][k];
+			}
 		}
 	}
 
-	cout << "---- ORIGINAL MATRIX ----\n";
-	testState.print();
+	//write the transformed states to an output file
+	string outputName;
+	printf("\nPlease enter the output filename: ");
+	cin >> outputName;
+	ofstream output;
+	output.open(outputName.c_str());
+	output << buffer3.rdbuf();
 
-	ByteSub(testState);
+	*/
 
-	cout << "---- AFTER BYTE SUB ----\n";
-	testState.print();
-	
-	ShiftRow(testState);
+	cout << "---- BEFORE ANYTHING ----\n";
+	states[0].print();
 
-	cout << "---- AFTER SHIFT ROW ----\n";
-	testState.print();
-
-	MixColumn(testState);
+	MixColumn(states[0]);
 
 	cout << "---- AFTER MIX COLUMN ----\n";
-	testState.print();
+	states[0].print();
 
-	InvMixColumn(testState);
+	InvMixColumn(states[0]);
 
-	cout << "---- AFTER INV MIX COLUMN --\n";
-	testState.print();
+	cout << "---- AFTER INV MIX COLUMN ----\n";
+	states[0].print();
 
-	InvShiftRow(testState);
+	Cipher(states[0], keyWords, numRounds, numRounds);
 
-	cout << "---- AFTER INV SHIFT ROW ---\n";
-	testState.print();
+	cout << "---- AFTER CIPHER ----\n";
+	states[0].print();
 
-	InvByteSub(testState);
+	Decrypt(states[0], keyWords, 0, numRounds);
 
-	cout << "---- AFTER INV BYTE SUB ----\n";
-	testState.print();
+	cout << "---- AFTER DECRYPT ----\n";
+	states[0].print();
 
-	//testing purposes only
-	Word tempWord;
-	for(int i = 0; i < 4; i++)
-	{
-		tempWord.bytes[i] = Matrix_TestRijndael[i];
-	}
 
-	cout << "---- ORIGINAL WORD ----\n";
-	tempWord.print();
 
-	RotWord(tempWord);
 
-	cout << "---- AFTER ROT WORD ----\n";
-	tempWord.print();
-
-	SubWord(tempWord);
-
-	cout << "---- AFTER SUB WORD ----\n";
-	tempWord.print();
-
-	//attempt to calculate t using the RCon
-
-	tempWord.bytes[0] ^= Matrix_RCon[1];
-
-	cout << "---- AFTER THE XOR ATTEMPT ----";
-	tempWord.print();
 
 	return 0;
 }

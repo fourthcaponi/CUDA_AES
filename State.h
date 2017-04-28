@@ -18,6 +18,18 @@
 
 using namespace std;
 
+#define BLOCK_SIZE_BIT 128
+#define BLOCK_SIZE_CHAR 16   //a single character is stored as a byte, so 16 bytes = 128 bits
+
+//this struct for the array of blocks implementation
+//TODO: capitalize this guy everywhere for my OCD
+struct block
+{
+	char text[BLOCK_SIZE_CHAR]; //divide by 8 b/c 1 char = 1 byte
+};
+
+
+
 struct State
 {
     unsigned char bytes[4][4];
