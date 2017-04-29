@@ -28,48 +28,48 @@ using namespace std;
 //which indeces of keyWords we will use
 
 //note this "roundIndex WILL go all the way up to numRounds"
-void Cipher(State &input, Word *keyWords, int roundIndex, int numRounds)
+void Cipher(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int numRounds)
 {
-    if(roundIndex == 0)
-    {
-        //pre-round transformation
-    	KeyAdd(input, keyWords, 0);
-    }
-    else if(roundIndex == numRounds)
-    {
-        ByteSub(input);
-        ShiftRow(input);
-        KeyAdd(input, keyWords, roundIndex);
-    }
-    else
-    {
-        ByteSub(input);
-        ShiftRow(input);
-        MixColumn(input);
-        KeyAdd(input, keyWords, roundIndex);
-    }
+	if (roundIndex == 0)
+	{
+		//pre-round transformation
+		KeyAdd(input, keyWords, size, 0);
+	}
+	else if (roundIndex == numRounds)
+	{
+		ByteSub(input);
+		ShiftRow(input);
+		KeyAdd(input, keyWords, size, roundIndex);
+	}
+	else
+	{
+		ByteSub(input);
+		ShiftRow(input);
+		MixColumn(input);
+		KeyAdd(input, keyWords, size, roundIndex);
+	}
 }
 
 //note the roundIndex is BACKWARDS from how Dr. Gamage described it in class (?)
-void Decrypt(State &input, Word *keyWords, int roundIndex, int numRounds)
+void Decrypt(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int numRounds)
 {
-    if(roundIndex == 0)
-    {
-        KeyAdd(input, keyWords, numRounds);
-        InvShiftRow(input);
-        InvByteSub(input);
-    }
-    else if(roundIndex == numRounds)
-    {
-        //pre-round transformation
-        KeyAdd(input, keyWords, 0);
-    }
-    else
-    {
-        KeyAdd(input, keyWords, numRounds - roundIndex);
-        InvMixColumn(input);
-        InvShiftRow(input);
-        InvByteSub(input);
-    }
+	if (roundIndex == 0)
+	{
+		KeyAdd(input, keyWords, size, numRounds);
+		InvShiftRow(input);
+		InvByteSub(input);
+	}
+	else if (roundIndex == numRounds)
+	{
+		//pre-round transformation
+		KeyAdd(input, keyWords, size, 0);
+	}
+	else
+	{
+		KeyAdd(input, keyWords, size, numRounds - roundIndex);
+		InvMixColumn(input);
+		InvShiftRow(input);
+		InvByteSub(input);
+	}
 }
 

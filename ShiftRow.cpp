@@ -24,37 +24,37 @@ using namespace std;
 
 void ShiftRow(State &input)
 {
-    for(int i = 0; i < 4; i++)
-    {
-        unsigned char tempBytes[4];
-        for(int j = 0; j < 4; j++)
-        {
-            //perform the left shift as dependent upon the row
-            tempBytes[j] = input.bytes[i][(j+i)%4];
-        }
-        for(int k = 0; k < 4; k++)
-        {
-            input.bytes[i][k] = tempBytes[k];
-        }
-    }
+	for (int i = 0; i < 4; i++)
+	{
+		unsigned char tempBytes[4];
+		for (int j = 0; j < 4; j++)
+		{
+			//perform the left shift as dependent upon the row
+			tempBytes[j] = input.bytes[i][(j + i) % 4];
+		}
+		for (int k = 0; k < 4; k++)
+		{
+			input.bytes[i][k] = tempBytes[k];
+		}
+	}
 }
 
 void InvShiftRow(State &input)
-{  
-    int offset = 4;
-    for(int i = 0; i < 4; i++)
-    {
-        unsigned char tempBytes[4];
-        for(int j = 0; j < 4; j++)
-        {
-            //perform the right shift as dependent upon the row
-            tempBytes[j] = input.bytes[i][(j+offset)%4];
-        }
-        for(int k = 0; k < 4; k++)
-        {
-            input.bytes[i][k] = tempBytes[k];
-        }
-        offset--;
-    }
-    
+{
+	int offset = 4;
+	for (int i = 0; i < 4; i++)
+	{
+		unsigned char tempBytes[4];
+		for (int j = 0; j < 4; j++)
+		{
+			//perform the right shift as dependent upon the row
+			tempBytes[j] = input.bytes[i][(j + offset) % 4];
+		}
+		for (int k = 0; k < 4; k++)
+		{
+			input.bytes[i][k] = tempBytes[k];
+		}
+		offset--;
+	}
+
 }

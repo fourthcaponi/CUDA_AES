@@ -16,6 +16,6 @@
 #include "State.h"
 
 //note KeyAdd is the inverse of itself
-void KeyAdd(State &input, Word *keyWords, int round);
+void KeyAdd(State &input, Word(&keyWords)[60], size_t size, int round);
 
 #endif

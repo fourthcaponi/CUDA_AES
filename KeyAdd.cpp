@@ -16,15 +16,21 @@ using namespace std;
 #include "State.h"
 
 //note KeyAdd is the inverse of itself
-void KeyAdd(State &input, Word *keyWords, int round)
+void KeyAdd(State &input, Word(&keyWords)[60], size_t size, int round)
 {
-    for(int i = 0; i < 4; i++)
-    {
-        for(int j = 0; j < 4; j++)
-        {
-            //perform the XOR operation
-            //note the order of [j] then [i]
-            input.bytes[j][i] ^= keyWords[round].bytes[j];
-        }
-    }
+	int counter = round * 4; //appropriate offset
+	//unsigned char temp;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			//perform the XOR operation
+			//note the order of [j] then [i]
+			//input.bytes[j][i] ^= keyWords[counter].bytes[j];
+			//temp = keyWords[counter].bytes[j];
+			input.bytes[j][i] ^= keyWords[counter].bytes[j];
+			
+		}
+		counter++;
+	}
 }

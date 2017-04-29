@@ -21,57 +21,57 @@ using namespace std;
 
 #include "ByteSub.h"
 #include "State.h"
-#include "MultInverse.cpp"
+//#include "MultInverse.cpp"
 #include "Matrices.h"
 #include "KeyExpansion.h"
 
 void ByteSub(State &input)
 {
-    for(int i = 0; i < 4; i++)
-    {
-        for(int j = 0; j < 4; j++)
-        {
-            //get the ASCII value as well as its decimal value
-            int byteTemp = input.bytes[i][j];
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			//get the ASCII value as well as its decimal value
+			int byteTemp = input.bytes[i][j];
 
-            //get the leftmost 4 bits aka the COLUMN
-            byteTemp = input.bytes[i][j];
-            byteTemp = (byteTemp >> 4) & ((1 << 4)-1); //leftmost 4 bits
-            int column = byteTemp;
+			//get the leftmost 4 bits aka the COLUMN
+			byteTemp = input.bytes[i][j];
+			byteTemp = (byteTemp >> 4) & ((1 << 4) - 1); //leftmost 4 bits
+			int column = byteTemp;
 
-            //get the rightmost 4 bits aka the ROW
-            byteTemp = input.bytes[i][j];
-            byteTemp = (byteTemp >> 0) & ((1 << 4) - 1); //rightmost 4 bits
-            int row = byteTemp;
+			//get the rightmost 4 bits aka the ROW
+			byteTemp = input.bytes[i][j];
+			byteTemp = (byteTemp >> 0) & ((1 << 4) - 1); //rightmost 4 bits
+			int row = byteTemp;
 
-            //set the original bytes on the passed in matrix to the new bytes
-            input.bytes[i][j] = Matrix_ByteSub[column][row];
-        }
-    }
+			//set the original bytes on the passed in matrix to the new bytes
+			input.bytes[i][j] = Matrix_ByteSub[column][row];
+		}
+	}
 }
 
 void InvByteSub(State &input)
 {
-    for(int i = 0; i < 4; i++)
-    {
-        for(int j = 0; j < 4; j++)
-        {
-            //get the ASCII value as well as its decimal value
-            int byteTemp = input.bytes[i][j];
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			//get the ASCII value as well as its decimal value
+			int byteTemp = input.bytes[i][j];
 
-            //get the leftmost 4 bits aka the COLUMN
-            byteTemp = input.bytes[i][j];
-            byteTemp = (byteTemp >> 4) & ((1 << 4)-1); //leftmost 4 bits
-            int column = byteTemp;
+			//get the leftmost 4 bits aka the COLUMN
+			byteTemp = input.bytes[i][j];
+			byteTemp = (byteTemp >> 4) & ((1 << 4) - 1); //leftmost 4 bits
+			int column = byteTemp;
 
-            //get the rightmost 4 bits aka the ROW
-            byteTemp = input.bytes[i][j];
-            byteTemp = (byteTemp >> 0) & ((1 << 4) - 1); //rightmost 4 bits
-            int row = byteTemp;
+			//get the rightmost 4 bits aka the ROW
+			byteTemp = input.bytes[i][j];
+			byteTemp = (byteTemp >> 0) & ((1 << 4) - 1); //rightmost 4 bits
+			int row = byteTemp;
 
-            //set the original bytes on the passed in matrix to the new bytes
-            input.bytes[i][j] = Matrix_InvByteSub[column][row];
-        }
-    }   
+			//set the original bytes on the passed in matrix to the new bytes
+			input.bytes[i][j] = Matrix_InvByteSub[column][row];
+		}
+	}
 }
 

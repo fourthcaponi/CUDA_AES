@@ -7,12 +7,15 @@
 //
 // Revisions:
 // 04/27/2017 | DS | Creation.  Moved from Main.cpp for program flow.
+// 04/28/2017 | DS | Include State.h
 
 #ifndef CIPHER_H
 #define CIPHER_H
 
-void Cipher(State &input, Word *keyWords, int roundIndex, int numRounds);
+#include "State.h"
 
-void Decrypt(State &input, Word *keyWords, int roundIndex, int numRounds);
+void Cipher(State &input, Word (&keyWords)[60], size_t size, int roundIndex, int numRounds);
+
+void Decrypt(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int numRounds);
 
 #endif
