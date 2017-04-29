@@ -8,6 +8,7 @@
 // Revisions:
 // 04/27/2017 | DS | Creation.  Moved from Main.cpp for program flow.
 // 04/28/2017 | DS | Include State.h
+// 04/29/2017 | DS | Changed the way the keyWords was getting passed in.
 
 #ifndef CIPHER_H
 #define CIPHER_H

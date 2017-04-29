@@ -8,6 +8,7 @@
 // Revisions:
 // 04/27/2017 | DS | Creation. Moved from Main.cpp for program flow.
 // 04/28/2017 | DS | Functions now accept states instead of blocks for input.
+// 04/29/2017 | DS | Changed the way the keyWords was getting passed in.
 
 #include <iostream>
 #include <fstream>

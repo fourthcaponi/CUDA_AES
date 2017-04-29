@@ -16,6 +16,7 @@
 // 04/27/2017 | DS | Removed array of key states - only going to use keyWords now.  Key Addition worked on.
 // 04/28/2017 | DS | Placed much of this file into Cipher.cpp.  Code cleanup.
 // 04/28/2017 | DS | Created MAX_MSG_SIZE and MAX_STATES for the array allocation issue.
+// 04/28/2017 | DS | Fixed the array pass by reference issue.  New version of MixColumn.
 
 #include <iostream>			//for grabbing user input
 #include <fstream>			//file i/o
@@ -504,6 +505,7 @@ int main()
 
 	//TESTING PURPOSES ONLY:
 
+/*
 	cout << "---- KEYWORDS[all] ----\n";
 	cout << "---- NOTE THE SAME FROM PG 210 ----\n";
 	for (int i = 0; i < numKeyWords; i++)
@@ -518,6 +520,35 @@ int main()
 		cout << "#" << dec << i << endl;
 		states[i].print();
 	}
+*/
+
+	//set up the test state
+	State test;
+	for(int i = 0; i < 4; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+			test.bytes[i][j] = Matrix_TestInput[i][j];
+		}
+	}
+
+	cout << "---- TEST MATRIX ----\n";
+	test.print();
+
+	ByteSub(test);
+
+	cout << "---- AFTER BYTE SUB ----\n";
+	test.print();
+
+	ShiftRow(test);
+
+	cout << "---- AFTER SHIFT ROW ----\n";
+	test.print();
+
+	MixColumn(test);
+
+	cout << "---- AFTER MIX COLUMN ----\n";
+	test.print();
 
 	cout << "---- BEFORE ANYTHING ----\n";
 	states[0].print();

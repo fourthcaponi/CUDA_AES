@@ -16,9 +16,12 @@
 #include "State.h"
 
 void MixColumn(State &input);
-void mc_operation(unsigned char *col);
-
 void InvMixColumn(State &input);
-void inv_mc_operation(unsigned char *col);
+
+//TODO: fix naming parameters
+unsigned char GaloisMult(int operand, int power);
+
+//void mc_operation(unsigned char *col);
+//void inv_mc_operation(unsigned char *col);
 
 #endif
