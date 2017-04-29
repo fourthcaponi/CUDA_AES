@@ -569,6 +569,11 @@ int main()
 	Cipher(states[0], keyWords, keyWordsSize, 10, numRounds);
 
 	cout << "---- AFTER CIPHER ----\n";
+	states[0].print();
+	states[0].printAscii();
+
+	states[1].print();
+	states[1].printAscii();
 
 	Decrypt(states[0], keyWords, keyWordsSize, 0, numRounds);
 	Decrypt(states[0], keyWords, keyWordsSize, 1, numRounds);
@@ -585,6 +590,9 @@ int main()
 	cout << "---- AFTER DECRYPT ----\n";
 	states[0].print();
 	states[0].printAscii();
+
+	states[1].print();
+	states[1].printAscii();
 
 	return 0;
 }
