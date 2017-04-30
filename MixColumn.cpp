@@ -13,6 +13,7 @@
 // 04/25/2017 | DS | Renamed the second mc_operation to inv_mc_operation.
 // 04/26/2017 | DS | Changed styling to reflect rest of program & code cleanup.
 // 04/29/2017 | DS | New functions that use a constant matrix.  Old versions left for posterity.
+// 04/30/2017 | DS | Finalized new functions.  Tested working using matrix from pg 206.
 
 #include <iostream>
 #include <fstream>
@@ -25,164 +26,120 @@ using namespace std;
 #include "ByteSub.h"
 #include "MixColumn.h"
 
-// void MixColumn(State &input)
-// {
-// 	Word inputColumn;
-// 	for (int i = 0; i < 4; i++)
-// 	{
-// 		for (int j = 0; j < 4; j++)
-// 		{
-// 			//get the column -> note the order of [j] then [i]
-// 			inputColumn.bytes[i] = input.bytes[j][i];
-// 		}
-// 	}
+void MixColumn(State &input)
+{
+	State temp; //what will be plugged into input's values
+	
+	for (int i = 0; i < 4; i++)
+	{
+		Word inputColumn;
+		for (int j = 0; j < 4; j++)
+		{
+			//get the column -> note the order of [j] then [i]
+			inputColumn.bytes[j] = input.bytes[j][i];
+		}
 
-// 	//perform the matrix multiplication
-// 	State temp;
-// 	unsigned char finalVal = 0;
-// 	for (int k = 0; k < 4; k++)
-// 	{
-// 		for (int l = 0; l < 4; l++)
-// 		{
-// 			finalVal = 0;
-// 			for (int m = 0; m < 4; m++)
-// 			{
-// 				//finalVal ^= inputColumn.bytes[m] * Matrix_InvMixCol[l][m]; 
-// 				if(Matrix_InvMixCol[l][m] == 1)
-// 				{
-// 					finalVal ^= GaloisMult(int(inputColumn.bytes[m]), 1);
-// 				}
-// 				else if(Matrix_InvMixCol[l][m] == 2)
-// 				{
-// 					finalVal ^= GaloisMult(int(inputColumn.bytes[m]), 2);
-// 				}
-// 				else if(Matrix_InvMixCol[l][m] == 3)
-// 				{
-// 					finalVal ^= GaloisMult(int(inputColumn.bytes[m]), 3);
-// 				}
-// 				else if(Matrix_InvMixCol[l][m] == 4)
-// 				{
-// 					finalVal ^= GaloisMult(int(inputColumn.bytes[m]), 4);
-// 				}
-// 			}
-// 			temp.bytes[k][l] = finalVal;
-// 		}
-// 	}
+		//perform the matrix multiplication
+		for(int j = 0; j < 4; j++)
+		{
+			unsigned char finalVal = 0;
+			for(int k = 0; k < 4; k++)
+			{
+				finalVal ^= GaloisMult(inputColumn.bytes[k], Matrix_MixCol[j][k]);
+			}
+			temp.bytes[j][i] = finalVal;
+		}
+	}
 
-// 	//set the input state to the temp variable
-// 	for (int n = 0; n < 4; n++)
-// 	{
-// 		for (int o = 0; o < 4; o++)
-// 		{
-// 			input.bytes[n][o] = temp.bytes[n][0];
-// 		}
-// 	}
-// }
+	//set the input state to the temp variable
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			input.bytes[i][j] = temp.bytes[i][j];
+		}
+	}
+}
 
-// void InvMixColumn(State &input)
-// {
-// 	Word inputColumn;
-// 	for (int i = 0; i < 4; i++)
-// 	{
-// 		for (int j = 0; j < 4; j++)
-// 		{
-// 			//get the column -> note the order of [j] then [i]
-// 			inputColumn.bytes[i] = input.bytes[j][i];
-// 		}
-// 	}
+void InvMixColumn(State &input)
+{
+	State temp; //what will be plugged into input's values
+	Word inputColumn;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			//get the column -> note the order of [j] then [i]
+			inputColumn.bytes[j] = input.bytes[j][i];
+		}
 
-// 	//perform the matrix multiplication
-// 	State temp;
-// 	unsigned char finalVal = 0;
-// 	for (int k = 0; k < 4; k++)
-// 	{
-// 		for (int l = 0; l < 4; l++)
-// 		{
-// 			finalVal = 0;
-// 			for (int m = 0; m < 4; m++)
-// 			{
-// 				//finalVal ^= inputColumn.bytes[m] * Matrix_InvMixCol[l][m]; 
-// 				if(Matrix_InvMixCol[l][m] == 9)
-// 				{
-// 					finalVal ^= GaloisMult(inputColumn.bytes[m], 9);
-// 				}
-// 				else if(Matrix_InvMixCol[l][m] == 11)
-// 				{
-// 					finalVal ^= GaloisMult(inputColumn.bytes[m], 11);
-// 				}
-// 				else if(Matrix_InvMixCol[l][m] == 13)
-// 				{
-// 					finalVal ^= GaloisMult(inputColumn.bytes[m], 13);
-// 				}
-// 				else if(Matrix_InvMixCol[l][m] == 14)
-// 				{
-// 					finalVal ^= GaloisMult(inputColumn.bytes[m], 14);
-// 				}
-// 			}
-// 			temp.bytes[k][l] = finalVal;
-// 		}
-// 	}
+		//perform the matrix multiplication
+		for(int j = 0; j < 4; j++)
+		{
+			unsigned char finalVal = 0;
+			for(int k = 0; k < 4; k++)
+			{
+				finalVal ^= GaloisMult(inputColumn.bytes[k], Matrix_InvMixCol[j][k]);
+			}
+			temp.bytes[j][i] = finalVal;
+		}
+	}
 
-// 	//set the input state to the temp variable
-// 	for (int n = 0; n < 4; n++)
-// 	{
-// 		for (int o = 0; o < 4; o++)
-// 		{
-// 			input.bytes[n][o] = temp.bytes[n][0];
-// 		}
-// 	}
-// }
+	//set the input state to the temp variable
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			input.bytes[i][j] = temp.bytes[i][j];
+		}
+	}
+}
 
-// unsigned char GaloisMult(int operand, int power)
-// {
-// 	if(power == 1)
-// 	{
-// 		return operand;
-// 	}	
+unsigned char GaloisMult(int operand, int power)
+{
+	if(power == 1)
+	{
+		//cout << operand << " by 1 is: " << operand <<"\n";
+		return operand;
+	}	
+	else if(power == 2)
+	{
+		//cout << operand << " by 2 is: " << Matrix_GaloisMult2[(int)operand] <<"\n";
+		return Matrix_GaloisMult2[(int)operand];
+	}
+	else if(power == 3)
+	{
+		//cout << operand << " by 3 is: " << Matrix_GaloisMult3[(int)operand] <<"\n";
+		return Matrix_GaloisMult3[(int)operand];
+	}
+	else if(power == 9)
+	{
+		//cout << operand << " by 9 is: " << Matrix_GaloisMult9[(int)operand] <<"\n";
+		return Matrix_GaloisMult9[(int)operand];
+	}
+	else if(power == 11)
+	{
+		//cout << operand << " by 11 is: " << Matrix_GaloisMult11[(int)operand] <<"\n";
+		return Matrix_GaloisMult11[(int)operand];
+	}
+	else if(power == 13)
+	{
+		//cout << operand << " by 13 is: " << Matrix_GaloisMult13[(int)operand] <<"\n";
+		return Matrix_GaloisMult13[(int)operand];
+	}
+	else if(power == 14)
+	{
+		//cout << operand << " by 14 is: " << Matrix_GaloisMult14[(int)operand] <<"\n";
+		return Matrix_GaloisMult14[(int)operand];
+	}
+	else
+	{
+		//something went wrong...
+		return -1;
+	}
+}
 
-// 	//get the leftmost 4 bits aka the COLUMN
-// 	int byteTemp = operand;
-// 	byteTemp = (byteTemp >> 4) & ((1 << 4) - 1); //leftmost 4 bits
-// 	int column = byteTemp;
-
-// 	//get the rightmost 4 bits aka the ROW
-// 	byteTemp = operand;
-// 	byteTemp = (byteTemp >> 0) & ((1 << 4) - 1); //rightmost 4 bits
-// 	int row = byteTemp;
-
-// 	if(power == 2)
-// 	{
-// 		return Matrix_GaloisMult2[column][row];
-// 	}
-// 	else if(power == 3)
-// 	{
-// 		return Matrix_GaloisMult3[column][row];
-// 	}
-// 	else if(power == 9)
-// 	{
-// 		return Matrix_GaloisMult9[column][row];
-// 	}
-// 	else if(power == 11)
-// 	{
-// 		return Matrix_GaloisMult11[column][row];
-// 	}
-// 	else if(power == 13)
-// 	{
-// 		return Matrix_GaloisMult13[column][row];
-// 	}
-// 	else if(power == 14)
-// 	{
-// 		return Matrix_GaloisMult14[column][row];
-// 	}
-// 	else
-// 	{
-// 		//something went wrong...
-// 		return -1;
-// 	}
-// }
-
-
-
+/*
 unsigned char gmul(unsigned char a, unsigned char b)
 {
 	//Original Author: Sam Trenholme
@@ -317,3 +274,4 @@ void inv_mc_operation(unsigned char *col)
 	col[2] = gmul(copyCol[0], 13) ^ gmul(copyCol[1], 9) ^ gmul(copyCol[2], 14) ^ gmul(copyCol[3], 11);
 	col[3] = gmul(copyCol[0], 11) ^ gmul(copyCol[1], 13) ^ gmul(copyCol[2], 9) ^ gmul(copyCol[3], 14);
 }
+*/

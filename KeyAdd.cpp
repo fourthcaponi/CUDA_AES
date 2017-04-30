@@ -22,15 +22,22 @@ void KeyAdd(State &input, Word(&keyWords)[60], size_t size, int round)
 	//unsigned char temp;
 	for (int i = 0; i < 4; i++)
 	{
+		//cout << "Key add on round #" << round << " with keyWord: ";
+		//keyWords[counter].print();
+
 		for (int j = 0; j < 4; j++)
 		{
 			//perform the XOR operation
 			//note the order of [j] then [i]
 			//input.bytes[j][i] ^= keyWords[counter].bytes[j];
 			//temp = keyWords[counter].bytes[j];
-			input.bytes[j][i] = input.bytes[j][i] ^ keyWords[counter].bytes[j];
+			//input.bytes[j][i] ^= keyWords[counter].bytes[j];
+
+			
+
+			input.bytes[j][i] ^= keyWords[counter].bytes[j];
+			
 		}
-		
 		counter++;
 	}
 }

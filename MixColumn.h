@@ -19,7 +19,7 @@ void MixColumn(State &input);
 void InvMixColumn(State &input);
 
 //TODO: fix naming parameters
-//unsigned char GaloisMult(int operand, int power);
+unsigned char GaloisMult(int operand, int power);
 
 void mc_operation(unsigned char *col);
 void inv_mc_operation(unsigned char *col);

@@ -64,7 +64,6 @@ int main()
 	//TODO: if arguments are passed in do not do this input/output printf stuff
 
 	//check to see if we are encrypting our decrypting the input message
-
 	int method = 0;
 	bool done = false;
 	while (!done)
@@ -329,7 +328,6 @@ int main()
 			}
 		}
 	}
-
 	else if (keySize == 192)
 	{
 		//note: this is basically the same as 128 bit except for 6 word "groups" instead of 4
@@ -533,54 +531,40 @@ int main()
 			test.bytes[i][j] = Matrix_TestInput[i][j];
 		}
 	}
-	State test2;
-	for(int i = 0; i < 4; i++)
-	{
-		for(int j = 0; j < 4; j++)
-		{
-			test2.bytes[i][j] = Matrix_TestInput2[i][j];
-		}
-	}
-
-	cout << "---- TEST MATRIX ----\n";
-	test2.print();
-
-	ByteSub(test2);
-
-	cout << "---- AFTER BYTE SUB ----\n";
-	test2.print();
-
-	ShiftRow(test2);
-
-	cout << "---- AFTER SHIFT ROW ----\n";
-	test2.print();
-
-	MixColumn(test2);
-
-	cout << "---- AFTER MIX COLUMN ----\n";
-	test2.print();
-
-	InvMixColumn(test2);
-
-	// cout << "---- AFTER INVMIX COLUMN ----\n";
-	// test.print();
-
-	// InvShiftRow(test);
-
-	// cout << "---- AFTER INVSHIFT ROW ----\n";
-	// test.print();
-
-	// InvByteSub(test);
-
-	// cout << "---- AFTER INVBYTE SUB ----\n";
-	// test.print();
-
-	cout << "---- BEFORE ANYTHING ----\n";
-	
-	test.print();
-	test.printAscii();
 
 	size_t keyWordsSize = sizeof(keyWords);
+
+
+/*
+	cout << "---- TEST MATRIX ----\n";
+	test.print();
+
+
+	ByteSub(test);
+
+	cout << "---- AFTER BYTE SUB ----\n";
+	test.print();
+
+	
+	ShiftRow(test);
+
+	cout << "---- AFTER SHIFT ROW ----\n";
+	test.print();
+
+	
+
+	MixColumn(test);
+
+	cout << "---- AFTER MIX COLUMN ----\n";
+	test.print();
+
+	
+*/
+
+	cout << "---- BEFORE ANYTHING ----\n";
+	test.print();
+	//states[0].printAscii();
+	
 
 	Cipher(test, keyWords, keyWordsSize, 0, numRounds); 
 	Cipher(test, keyWords, keyWordsSize, 1, numRounds);
@@ -595,8 +579,6 @@ int main()
 	Cipher(test, keyWords, keyWordsSize, 10, numRounds);
 
 	cout << "---- AFTER CIPHER ----\n";
-	test.print();
-	test.printAscii();
 
 	Decrypt(test, keyWords, keyWordsSize, 0, numRounds);
 	Decrypt(test, keyWords, keyWordsSize, 1, numRounds);
@@ -612,7 +594,9 @@ int main()
 
 	cout << "---- AFTER DECRYPT ----\n";
 	test.print();
-	test.printAscii();
+	//states[0].printAscii();
+
+	
 
 	return 0;
 }
