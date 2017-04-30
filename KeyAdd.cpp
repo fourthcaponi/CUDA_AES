@@ -28,9 +28,9 @@ void KeyAdd(State &input, Word(&keyWords)[60], size_t size, int round)
 			//note the order of [j] then [i]
 			//input.bytes[j][i] ^= keyWords[counter].bytes[j];
 			//temp = keyWords[counter].bytes[j];
-			input.bytes[j][i] ^= keyWords[counter].bytes[j];
-			
+			input.bytes[j][i] = input.bytes[j][i] ^ keyWords[counter].bytes[j];
 		}
+		
 		counter++;
 	}
 }

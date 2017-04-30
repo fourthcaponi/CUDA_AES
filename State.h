@@ -36,6 +36,7 @@ struct State
 
 	void print()
 	{
+		
 		cout << endl;
 		cout << "{ { " << setfill('0') << setw(2) << hex << (int)bytes[0][0] << ", " << setfill('0') << setw(2) << hex << (int)bytes[0][1] << ", " << setfill('0') << setw(2) << hex << (int)bytes[0][2] << ", " << setfill('0') << setw(2) << hex << (int)bytes[0][3] << " },\n";
 		cout << "  { " << setfill('0') << setw(2) << hex << (int)bytes[1][0] << ", " << setfill('0') << setw(2) << hex << (int)bytes[1][1] << ", " << setfill('0') << setw(2) << hex << (int)bytes[1][2] << ", " << setfill('0') << setw(2) << hex << (int)bytes[1][3] << " },\n";
@@ -45,6 +46,7 @@ struct State
 
 	void printAscii()
 	{
+
 		cout << endl;
 		cout << "{ { " << (char)bytes[0][0] << ", " << (char)bytes[0][1] << ", " << (char)bytes[0][2] << ", " << (char)bytes[0][3] << " },\n";
 		cout << "  { " << (char)bytes[1][0] << ", " << (char)bytes[1][1] << ", " << (char)bytes[1][2] << ", " << (char)bytes[1][3] << " },\n";
@@ -52,7 +54,17 @@ struct State
 		cout << "  { " << (char)bytes[3][0] << ", " << (char)bytes[3][1] << ", " << (char)bytes[3][2] << ", " << (char)bytes[3][3] << " } }\n\n";
 
 	}
+
+	void printDec() {
+		for (int i =0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				cout << bytes[i][j] << endl;
+			}
+		}
+	}
 };
+
+
 
 //for key expansion
 struct Word

@@ -64,6 +64,7 @@ int main()
 	//TODO: if arguments are passed in do not do this input/output printf stuff
 
 	//check to see if we are encrypting our decrypting the input message
+
 	int method = 0;
 	bool done = false;
 	while (!done)
@@ -328,6 +329,7 @@ int main()
 			}
 		}
 	}
+
 	else if (keySize == 192)
 	{
 		//note: this is basically the same as 128 bit except for 6 word "groups" instead of 4
@@ -531,68 +533,86 @@ int main()
 			test.bytes[i][j] = Matrix_TestInput[i][j];
 		}
 	}
+	State test2;
+	for(int i = 0; i < 4; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+			test2.bytes[i][j] = Matrix_TestInput2[i][j];
+		}
+	}
 
 	cout << "---- TEST MATRIX ----\n";
-	test.print();
+	test2.print();
 
-	ByteSub(test);
+	ByteSub(test2);
 
 	cout << "---- AFTER BYTE SUB ----\n";
-	test.print();
+	test2.print();
 
-	ShiftRow(test);
+	ShiftRow(test2);
 
 	cout << "---- AFTER SHIFT ROW ----\n";
-	test.print();
+	test2.print();
 
-	MixColumn(test);
+	MixColumn(test2);
 
 	cout << "---- AFTER MIX COLUMN ----\n";
-	test.print();
+	test2.print();
+
+	InvMixColumn(test2);
+
+	// cout << "---- AFTER INVMIX COLUMN ----\n";
+	// test.print();
+
+	// InvShiftRow(test);
+
+	// cout << "---- AFTER INVSHIFT ROW ----\n";
+	// test.print();
+
+	// InvByteSub(test);
+
+	// cout << "---- AFTER INVBYTE SUB ----\n";
+	// test.print();
 
 	cout << "---- BEFORE ANYTHING ----\n";
-	states[0].print();
-	states[0].printAscii();
+	
+	test.print();
+	test.printAscii();
 
 	size_t keyWordsSize = sizeof(keyWords);
 
-	Cipher(states[0], keyWords, keyWordsSize, 0, numRounds); 
-	Cipher(states[0], keyWords, keyWordsSize, 1, numRounds);
-	Cipher(states[0], keyWords, keyWordsSize, 2, numRounds); 
-	Cipher(states[0], keyWords, keyWordsSize, 3, numRounds); 
-	Cipher(states[0], keyWords, keyWordsSize, 4, numRounds); 
-	Cipher(states[0], keyWords, keyWordsSize, 5, numRounds); 
-	Cipher(states[0], keyWords, keyWordsSize, 6, numRounds);
-	Cipher(states[0], keyWords, keyWordsSize, 7, numRounds);
-	Cipher(states[0], keyWords, keyWordsSize, 8, numRounds);  
-	Cipher(states[0], keyWords, keyWordsSize, 9, numRounds);
-	Cipher(states[0], keyWords, keyWordsSize, 10, numRounds);
+	Cipher(test, keyWords, keyWordsSize, 0, numRounds); 
+	Cipher(test, keyWords, keyWordsSize, 1, numRounds);
+	Cipher(test, keyWords, keyWordsSize, 2, numRounds); 
+	Cipher(test, keyWords, keyWordsSize, 3, numRounds); 
+	Cipher(test, keyWords, keyWordsSize, 4, numRounds); 
+	Cipher(test, keyWords, keyWordsSize, 5, numRounds); 
+	Cipher(test, keyWords, keyWordsSize, 6, numRounds);
+	Cipher(test, keyWords, keyWordsSize, 7, numRounds);
+	Cipher(test, keyWords, keyWordsSize, 8, numRounds);  
+	Cipher(test, keyWords, keyWordsSize, 9, numRounds);
+	Cipher(test, keyWords, keyWordsSize, 10, numRounds);
 
 	cout << "---- AFTER CIPHER ----\n";
-	states[0].print();
-	states[0].printAscii();
+	test.print();
+	test.printAscii();
 
-	states[1].print();
-	states[1].printAscii();
-
-	Decrypt(states[0], keyWords, keyWordsSize, 0, numRounds);
-	Decrypt(states[0], keyWords, keyWordsSize, 1, numRounds);
-	Decrypt(states[0], keyWords, keyWordsSize, 2, numRounds);  
-	Decrypt(states[0], keyWords, keyWordsSize, 3, numRounds);
-	Decrypt(states[0], keyWords, keyWordsSize, 4, numRounds);
-	Decrypt(states[0], keyWords, keyWordsSize, 5, numRounds); 
-	Decrypt(states[0], keyWords, keyWordsSize, 6, numRounds); 
-	Decrypt(states[0], keyWords, keyWordsSize, 7, numRounds);
-	Decrypt(states[0], keyWords, keyWordsSize, 8, numRounds); 
-	Decrypt(states[0], keyWords, keyWordsSize, 9, numRounds);
-	Decrypt(states[0], keyWords, keyWordsSize, 10, numRounds);
+	Decrypt(test, keyWords, keyWordsSize, 0, numRounds);
+	Decrypt(test, keyWords, keyWordsSize, 1, numRounds);
+	Decrypt(test, keyWords, keyWordsSize, 2, numRounds);  
+	Decrypt(test, keyWords, keyWordsSize, 3, numRounds);
+	Decrypt(test, keyWords, keyWordsSize, 4, numRounds);
+	Decrypt(test, keyWords, keyWordsSize, 5, numRounds); 
+	Decrypt(test, keyWords, keyWordsSize, 6, numRounds); 
+	Decrypt(test, keyWords, keyWordsSize, 7, numRounds);
+	Decrypt(test, keyWords, keyWordsSize, 8, numRounds); 
+	Decrypt(test, keyWords, keyWordsSize, 9, numRounds);
+	Decrypt(test, keyWords, keyWordsSize, 10, numRounds);
 
 	cout << "---- AFTER DECRYPT ----\n";
-	states[0].print();
-	states[0].printAscii();
-
-	states[1].print();
-	states[1].printAscii();
+	test.print();
+	test.printAscii();
 
 	return 0;
 }

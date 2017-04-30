@@ -35,19 +35,32 @@ void Cipher(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int 
 	{
 		//pre-round transformation
 		KeyAdd(input, keyWords, size, 0);
+		cout << "---- ROUND 0 OUT ----\n";
+		input.print();
 	}
 	else if (roundIndex == numRounds)
 	{
 		ByteSub(input);
 		ShiftRow(input);
-		KeyAdd(input, keyWords, size, roundIndex);
+		KeyAdd(input, keyWords, size, roundIndex);		
 	}
 	else
 	{
 		ByteSub(input);
+		cout << "---- BYTESUB " << roundIndex << " OUT ----\n";
+		input.print();
+
 		ShiftRow(input);
+		cout << "---- SHIFTROW " << roundIndex << " OUT ----\n";
+		input.print();
+
 		MixColumn(input);
+		cout << "---- MIXCOLUMN " << roundIndex << " OUT ----\n";
+		input.print();
+
 		KeyAdd(input, keyWords, size, roundIndex);
+		cout << "---- KEYADD " << roundIndex << " OUT ----\n";
+		input.print();
 	}
 }
 
@@ -56,6 +69,7 @@ void Decrypt(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int
 {
 	if (roundIndex == 0)
 	{
+		
 		KeyAdd(input, keyWords, size, numRounds);
 		InvShiftRow(input);
 		InvByteSub(input);
