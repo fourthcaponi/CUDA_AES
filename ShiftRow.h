@@ -15,7 +15,10 @@
 
 #include "State.h"
 
-void ShiftRow(State &input);
-void InvShiftRow(State &input);
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+
+__global__ void ShiftRow(State &input);
+__global__ void InvShiftRow(State &input);
 
 #endif

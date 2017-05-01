@@ -295,131 +295,15 @@ int main()
 	//TODO: modularize this (use groupsize and %'s) (maybe a function) !!
 	if (keySize == 128)
 	{
-		Word tempWord;
-		for (int i = 4; i < numKeyWords; i++)
-		{
-			if (i % 4 != 0)
-			{
-				for (int j = 0; j < 4; j++)
-				{
-					keyWords[i].bytes[j] = keyWords[i - 1].bytes[j] ^ keyWords[i - 4].bytes[j];
-				}
-			}
-			else
-			{
-				//function g
-				for (int k = 0; k < 4; k++)
-				{
-					tempWord.bytes[k] = keyWords[i - 1].bytes[k]; //initially populate the tempword		
-				}
-				//perform the rotation
-				RotWord(tempWord);
-				//apply the subword
-				SubWord(tempWord);
-
-				//XOR the [0]'th byte with RCon[i/4]
-				tempWord.bytes[0] ^= Matrix_RCon[i / 4];
-
-				//apply the addition (XOR?)of 't' aka tempWord
-				for (int l = 0; l < 4; l++)
-				{
-					keyWords[i].bytes[l] = tempWord.bytes[l] ^ keyWords[i - 4].bytes[l];
-				}
-			}
-		}
+		ke_128(keyWords, numKeyWords);
 	}
 	else if (keySize == 192)
 	{
-		//note: this is basically the same as 128 bit except for 6 word "groups" instead of 4
-		Word tempWord;
-		for (int i = 4; i < numKeyWords; i++)
-		{
-			if (i % 6 != 0)
-			{
-				for (int j = 0; j < 4; j++)
-				{
-					//note the keyWords[i-6] here instead of [i-4]
-					keyWords[i].bytes[j] = keyWords[i - 1].bytes[j] ^ keyWords[i - 6].bytes[j];
-				}
-			}
-			else
-			{
-				//function g
-				for (int k = 0; k < 4; k++)
-				{
-					//note 'tempword' is the 't' variable from the book
-					tempWord.bytes[k] = keyWords[i - 1].bytes[k]; //initially populate the tempword		
-				}
-				//perform the rotation
-				RotWord(tempWord);
-				//apply the subword
-				SubWord(tempWord);
-
-				//XOR the [0]'th byte it with Rconi/4
-				tempWord.bytes[0] ^= Matrix_RCon[i / 4];
-
-				//apply the addition (XOR?)of 't' aka tempWord
-				for (int l = 0; l < 4; l++)
-				{
-					keyWords[i].bytes[l] = tempWord.bytes[l] ^ keyWords[i - 6].bytes[l];
-				}
-			}
-		}
+		ke_192(keyWords, numKeyWords);
 	}
 	else if (keySize == 256)
 	{
-		Word tempWord;
-		for (int i = 8; i < numKeyWords; i++)
-		{
-			if (i % 8 != 0)
-			{
-				//check for the additional step needed for 256
-				//this is subsection 2.c. of pg 212 from the textbook
-				if (i % 4 == 0)
-				{
-					for (int j = 0; j < 4; j++)
-					{
-						tempWord.bytes[j] = keyWords[i - 1].bytes[j];
-					}
-					//perform the SubWord
-					SubWord(tempWord);
-
-					for (int j = 0; j < 4; j++)
-					{
-						tempWord.bytes[j] ^= keyWords[i - 8].bytes[j];
-					}
-				}
-				else
-				{
-					for (int j = 0; j < 4; j++)
-					{
-						keyWords[i].bytes[j] = keyWords[i - 1].bytes[j] ^ keyWords[i - 8].bytes[j];
-
-					}
-				}
-			}
-			else
-			{
-				for (int k = 0; k < 4; k++)
-				{
-					tempWord.bytes[k] = keyWords[i - 1].bytes[k]; //initially populate the tempword		
-				}
-				//perform the rotation
-				RotWord(tempWord);
-				//apply the subword
-				SubWord(tempWord);
-				//XOR it with Rcon[i/4]
-				for (int k = 0; k < 4; k++)
-				{
-					tempWord.bytes[k] ^= Matrix_RCon[i / 4];
-				}
-				//apply the addition (XOR?)of 't' aka tempWord
-				for (int l = 0; l < 4; l++)
-				{
-					keyWords[i].bytes[l] = tempWord.bytes[l] ^ keyWords[i - 8].bytes[l];
-				}
-			}
-		}
+		ke_256(keyWords, numKeyWords);
 	}
 	else
 	{

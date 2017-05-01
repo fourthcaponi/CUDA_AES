@@ -13,7 +13,10 @@
 
 using namespace std;
 
-void RotWord(Word &word);
-void SubWord(Word &word);
+__device__ void RotWord(Word &word);
+__device__ void SubWord(Word &word);
+__global__ void ke_128(Word *keyWords, int numKeyWords);
+__global__ void ke_192(Word *keyWords, int numKeyWords);
+__global__ void ke_256(Word *keyWords, int numKeyWords);
 
 #endif

@@ -25,6 +25,8 @@ using namespace std;
 
 #include "ByteSub.h"
 #include "MixColumn.h"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
 /*
 void MixColumn(State &input)

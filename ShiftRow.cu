@@ -25,12 +25,15 @@ using namespace std;
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
-void ShiftRow(State &input)
+__global__ void ShiftRow(State &input)
 {
-	for (int i = 0; i < 4; i++)
+	int i = threadIdx.x;
+	int j = threadIdx.y;
+
+	if (i < 4)
 	{
 		unsigned char tempBytes[4];
-		for (int j = 0; j < 4; j++)
+		if (j < 4)
 		{
 			//perform the left shift as dependent upon the row
 			tempBytes[j] = input.bytes[i][(j + i) % 4];
@@ -42,13 +45,16 @@ void ShiftRow(State &input)
 	}
 }
 
-void InvShiftRow(State &input)
+__global__ void InvShiftRow(State &input)
 {
 	int offset = 4;
-	for (int i = 0; i < 4; i++)
+	int i = threadIdx.x;
+	int j = threadIdx.y;
+
+	if (i < 4)
 	{
 		unsigned char tempBytes[4];
-		for (int j = 0; j < 4; j++)
+		if (j < 4)
 		{
 			//perform the right shift as dependent upon the row
 			tempBytes[j] = input.bytes[i][(j + offset) % 4];

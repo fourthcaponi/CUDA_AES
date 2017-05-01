@@ -14,14 +14,16 @@
 #define MIX_COL_H
 
 #include "State.h"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
-void MixColumn(State &input);
-void InvMixColumn(State &input);
+__global__ void MixColumn(State &input);
+__global__ void InvMixColumn(State &input);
 
 //TODO: fix naming parameters
-unsigned char GaloisMult(int operand, int power);
+//unsigned char GaloisMult(int operand, int power);
 
-void mc_operation(unsigned char *col);
-void inv_mc_operation(unsigned char *col);
+__global__ void mc_operation(unsigned char *col);
+__global__ void inv_mc_operation(unsigned char *col);
 
 #endif
