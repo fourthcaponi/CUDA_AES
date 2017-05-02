@@ -5,6 +5,8 @@
 //
 // NOTE: Byte operations are performed on char arrays.
 //
+// NOTE2: We have MixColumn and InvMixcolumn implemented in two different ways in this file.
+//
 // Revisions:
 // 04/19/2017 | DS | Creation.
 // 04/20/2017 | MC | Began implementation
@@ -26,10 +28,13 @@ using namespace std;
 #include "ByteSub.h"
 #include "MixColumn.h"
 
+
 void MixColumn(State &input)
 {
 	State temp; //what will be plugged into input's values
 	
+	unsigned char finalVal = 0;
+
 	for (int i = 0; i < 4; i++)
 	{
 		Word inputColumn;
@@ -42,7 +47,7 @@ void MixColumn(State &input)
 		//perform the matrix multiplication
 		for(int j = 0; j < 4; j++)
 		{
-			unsigned char finalVal = 0;
+			finalVal = 0;
 			for(int k = 0; k < 4; k++)
 			{
 				finalVal ^= GaloisMult(inputColumn.bytes[k], Matrix_MixCol[j][k]);

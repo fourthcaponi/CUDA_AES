@@ -9,6 +9,7 @@
         "fstream": "cpp",
         "sstream": "cpp",
         "iostream": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "ostream": "cpp"
     }
 }

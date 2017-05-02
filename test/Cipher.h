@@ -15,8 +15,8 @@
 
 #include "State.h"
 
-void Cipher(State &input, Word (&keyWords)[60], size_t size, int roundIndex, int numRounds);
+void Cipher(State &input, Word (&keyWords)[60], int roundIndex, int numRounds);
 
-void Decrypt(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int numRounds);
+void Decrypt(State &input, Word(&keyWords)[60], int roundIndex, int numRounds);
 
 #endif

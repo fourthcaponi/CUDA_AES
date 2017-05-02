@@ -48,6 +48,7 @@ void ByteSub(State &input)
 			input.bytes[i][j] = Matrix_ByteSub[column][row];
 		}
 	}
+
 }
 
 void InvByteSub(State &input)
@@ -73,5 +74,7 @@ void InvByteSub(State &input)
 			input.bytes[i][j] = Matrix_InvByteSub[column][row];
 		}
 	}
+
+	
 }
 

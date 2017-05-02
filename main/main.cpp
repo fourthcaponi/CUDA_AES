@@ -17,6 +17,8 @@
 // 04/28/2017 | DS | Placed much of this file into Cipher.cpp.  Code cleanup.
 // 04/28/2017 | DS | Created MAX_MSG_SIZE and MAX_STATES for the array allocation issue.
 // 04/28/2017 | DS | Fixed the array pass by reference issue.  New version of MixColumn.
+// 04/29/2017 | DS | Put Cipher and Decrypt into a loop.  More debugging.
+// 05/01/2017 | DS | Changed cipher output text file to ascii representation of the hex values.  
 
 #include <iostream>			//for grabbing user input
 #include <fstream>			//file i/o
@@ -24,9 +26,6 @@
 #include <string>			//for grabbing user input
 #include <cstring>			//converts strings to 'c style' strings
 #include <sys/stat.h> 		//for filesize	
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <iomanip>
 
 //the external files
 #include "ByteSub.h"		//for ByteSub() and InvByteSub()
@@ -176,9 +175,25 @@ int main()
 	}
 
 	//find out how many blocks we will need
-	double numBlocksD = (double)messageSizeChar / (double)BLOCK_SIZE_CHAR;
-	int	numBlocks = messageSizeChar / BLOCK_SIZE_CHAR;
+	double numBlocksD = 0.0;
+	int	numBlocks = 0;
 	bool paddingNeeded = false;
+	if(method == 1)
+	{
+		numBlocksD = (double)messageSizeChar / (double)BLOCK_SIZE_CHAR;
+		numBlocks = messageSizeChar / BLOCK_SIZE_CHAR;
+	}
+	else if(method == 2)
+	{
+		//have to account for the two hex values
+		numBlocksD = ( (double)messageSizeChar / 2 ) / BLOCK_SIZE_CHAR;
+		numBlocks = ( (double)messageSizeChar / 2 ) / BLOCK_SIZE_CHAR;
+	}
+	else
+	{
+		//something went wrong...
+	}
+
 	if (numBlocksD > numBlocks)
 	{
 		//if there is a 'fraction' of a whole block we still need an extra block
@@ -202,25 +217,92 @@ int main()
 	strncpy(messageChars, messageString.c_str(), sizeof(messageChars));
 	messageChars[messageSizeChar + 1] = '\0'; //add this null guy to the end
 
+	cout << "About to print messageChars: \n";
+	printf("%s",messageChars);
+
 	//split the message into block chunks
 	block blocks[MAX_STATES];
 	int counter = 0;
 	for (int i = 0; i < numBlocks; i++)
 	{
-		counter = i * BLOCK_SIZE_CHAR;
-		for (int j = 0; j < BLOCK_SIZE_CHAR; j++)
+		if(method == 1)
 		{
-			//pad with 0's
-			if (i == numBlocks - 1 && paddingNeeded && counter >= messageSizeChar)
+			counter = i * BLOCK_SIZE_CHAR;
+			for (int j = 0; j < BLOCK_SIZE_CHAR; j++)
 			{
-				blocks[i].text[j] = '0';
-			}
-			else
-			{
-				blocks[i].text[j] = messageChars[counter];
-			}
+				//pad with 0's
+				if (i == numBlocks - 1 && paddingNeeded && counter >= messageSizeChar)
+				{
+					blocks[i].text[j] = '0';
+				}
+				else
+				{
+					blocks[i].text[j] = messageChars[counter];
+				}
 
-			counter++;
+				counter++;
+			}
+		}
+		else if(method == 2)
+		{
+			counter = i * BLOCK_SIZE_CHAR * 2;
+			//char _2bytes[2];
+			string _2bytes;
+			for (int j = 0; j < BLOCK_SIZE_CHAR; j++)
+			{
+				//pad with 0's
+				if (i == numBlocks - 1 && paddingNeeded && counter >= messageSizeChar)
+				{
+					//TODO: fix for decrypt
+					//blocks[i].text[j] = '0';
+					//cout << "mlaaaaaaaaaaaaaaaaaaaa\n";
+				}
+				else
+				{
+					//grab two ascii values at a time and combine them into one hex value
+					//aka convert two bytes into one byte based on their ascii representation
+					//BE CAREFUL WITH THIS
+					_2bytes[0] = messageChars[counter];
+					cout << "_2bytes[0]: " << _2bytes[0] << endl;
+					counter++;
+					_2bytes[1] = messageChars[counter];
+					cout << "_2bytes[1]: " << _2bytes[1] << endl;
+
+					string byteString = "";
+					byteString += (_2bytes[0]);
+					byteString += (_2bytes[1]);
+					cout << "byteString: " << byteString << endl;
+
+					//parse into an integer with base 16
+					int byte = (int)strtol(byteString.c_str(), NULL, 16);
+					cout << "byte: " << hex << byte << endl;
+
+					/*
+					//THIS IS PROBABLY THE EASIER WAY (?)
+					//will have to grab the two hex values and combine them
+					char byte1;
+					char byte2;
+					byte1 = blocks[i].text[blockTextIndex];
+					blockTextIndex++;
+					byte2 = blocks[i].text[blockTextIndex];
+					
+					//combine the two characters into a string
+					stringstream ss;
+					int finalByte;
+					ss << hex << (int)byte1 << hex << (int)byte2;
+
+					cout << "finalByte of state["<<i<<"]: " << ss.rdbuf() << endl;
+
+					ss >> hex >> finalByte;
+
+					states[i].bytes[j][k] = finalByte;
+					*/
+
+					//plug it into our block
+					blocks[i].text[j] = byte;
+				}
+				counter++;
+			}
 		}
 	}
 
@@ -229,9 +311,11 @@ int main()
 	//be passed to different portions of AES as appropriate
 	//i.e. if we are going to pass the 3rd 'block' to AES it would
 	//be the 3rd chunk of 128 bits i.e. 16 characters i.e. blocks[2].text
+	//5/1 note: ^ this only applies to the encryption i.e. method==1
 
 	//printf("%.*s\n", BLOCK_SIZE_CHAR, blocks[0].text);
-	//printf("%s",blocks[0].text);
+	cout << "about to print blocks[0]...\n";
+	printf("%.*s\n", BLOCK_SIZE_CHAR, blocks[0].text);
 
 	//create an array of States out of the array of blocks
 	State states[MAX_STATES];
@@ -243,10 +327,24 @@ int main()
 		{
 			for (int k = 0; k < 4; k++)
 			{
+				
+				//can grab straight ascii
+				//TODO: do the indeces need to be reversed?????????
 				states[i].bytes[j][k] = blocks[i].text[blockTextIndex];
+				//blockTextIndex++;
+			
+				//increment our iterator
 				blockTextIndex++;
 			}
 		}
+	}
+
+	cout << "~~~~~~~~~~ AFTER POPULATION OF STATES ~~~~~~~~~\n";
+	for(int i = 0; i < numBlocks; i++)
+	{
+		cout << "State #" << dec << i << endl;
+		states[i].print();
+		states[i].printAscii();
 	}
 
 	//now we need to get the input key - we will need it for key expansion
@@ -271,6 +369,7 @@ int main()
 	for(int i = 0; i < keySizeChar; i++)
 	{
 		keyChars[i] = Matrix_TestKey[i];
+		//keyChars[i] = 0x00;
 	}
 	
 
@@ -424,73 +523,98 @@ int main()
 	else
 	{
 		//something went wrong...
-	}
 
-
-	/*
-	cout << "---- BEFORE ANYTHING: ----\n";
-	for(int i = 0; i < 2; i++)
-	{
-	states[i].print();
 	}
 
 	//perform the actual encryption or decryption using all the pieces above
-	//	if(method == 1)
-	//	{
-	//encryption
-	for(int i = 0; i < numBlocks; i++)
+	if(method == 1)
 	{
-	for(int j = 0; j <= numRounds; j++)
-	{
-	//where the magic happens
-	Cipher(states[i], keyWords, j, numRounds);
-	}
-	}
+		//encryption
+		for(int i = 0; i < numBlocks; i++)
+		{
+			for(int j = 0; j <= numRounds; j++)
+			{
+				//where the magic happens
+				Cipher(states[i], keyWords, j, numRounds);
+			}
+		}
 
-	cout << "---- AFTER CIPHER: ----\n";
-	for(int i = 0; i < 2; i++)
-	{
-	states[i].print();
+		cout << "~~~~~~~~~~ AFTER CIPHER OPERATION ON BLOCKS ~~~~~~~~~\n";
+		for(int i = 0; i < numBlocks; i++)
+		{
+			cout << "State #" << dec << i << endl;
+			states[i].print();
+			states[i].printAscii();
+		}
 	}
-
-	//	}
-	//	else if(method == 2)
-	//	{
-	//decryption
-	for(int i = 0; i < numBlocks; i++)
+	else if(method == 2)
 	{
-	for(int j = 0; j <= numRounds; j++)
+		cout << "########### INSIDE THE DECRYPTION BLOCK ############\n";
+		for(int i = 0; i < numBlocks; i++)
+		{
+			cout << "State #" << dec << i << endl;
+			states[i].print();
+			states[i].printAscii();
+		}
+
+		//decryption
+		for(int i = 0; i < numBlocks; i++)
+		{
+			for(int j = 0; j <= numRounds; j++)
+			{
+				//where the "un-magic" happens
+				Decrypt(states[i], keyWords, j, numRounds);
+			}
+		}
+	}
+	else
 	{
-	//where the "un-magic" happens
-	Decrypt(states[i], keyWords, j, numRounds);
+		//something went wrong...
 	}
-	}
-
-	cout << "---- AFTER DECRYPT: ----\n";
-	for(int i = 0; i < 2; i++)
-	{
-	states[i].print();
-	}
-
-
-	//	}
-	//	else
-	//	{
-	//something went wrong...
-	//	}
 
 	//populate a buffer will all of the newly transformed state contents
 	stringstream buffer3;
 	for(int i = 0; i < numBlocks; i++)
 	{
-	for(int j = 0; j < 4; j++)
-	{
-	for(int k = 0; k < 4; k++)
-	{
-	//cout << "\n" << states[i].bytes[j][k];
-	buffer3 << (char)states[i].bytes[j][k];
-	}
-	}
+		for(int j = 0; j < 4; j++)
+		{
+			for(int k = 0; k < 4; k++)
+			{
+				if(method == 1)
+				{
+					//have to write the hex values as ascii characters
+					//get the ASCII value as well as its decimal value
+					int byteTemp = states[i].bytes[j][k];
+
+					//get the leftmost 4 bits
+					byteTemp = (byteTemp >> 4) & ((1 << 4) - 1); //leftmost 4 bits
+					int byte1 = byteTemp;
+
+					//get the rightmost 4 bits
+					byteTemp = states[i].bytes[j][k];
+					byteTemp = (byteTemp >> 0) & ((1 << 4) - 1); //rightmost 4 bits
+					int byte2 = byteTemp;
+
+					//set the final byte
+					int finalByte = 0;
+					finalByte ^= byte1; //get the leftmost bits
+					finalByte = finalByte << 4; //shift to leftmost places
+					finalByte ^= byte2; //AND finalbyte with the rightmost bits
+
+					//write both hex values (2 bytes) to the buffer
+					buffer3 << setfill('0') << setw(2) << hex << finalByte;
+				}
+				else if(method == 2)
+				{
+					//can write straight ascii (in theory)
+					buffer3 << (char)states[i].bytes[j][k];
+				}
+				else
+				{
+					//something went wrong...
+				}
+			}
+		}
 	}
 
 	//write the transformed states to an output file
@@ -500,103 +624,7 @@ int main()
 	ofstream output;
 	output.open(outputName.c_str());
 	output << buffer3.rdbuf();
-	*/
 
-
-	//TESTING PURPOSES ONLY:
-
-/*
-	cout << "---- KEYWORDS[all] ----\n";
-	cout << "---- NOTE THE SAME FROM PG 210 ----\n";
-	for (int i = 0; i < numKeyWords; i++)
-	{
-		cout << "#" << dec<<i << endl;
-		keyWords[i].print();
-	}
-
-	cout << "---- STATES[all] ----\n";
-	for (int i = 0; i < numBlocks; i++)
-	{
-		cout << "#" << dec << i << endl;
-		states[i].print();
-	}
-*/
-
-	//set up the test state
-	State test;
-	for(int i = 0; i < 4; i++)
-	{
-		for(int j = 0; j < 4; j++)
-		{
-			test.bytes[i][j] = Matrix_TestInput[i][j];
-		}
-	}
-
-	size_t keyWordsSize = sizeof(keyWords);
-
-
-/*
-	cout << "---- TEST MATRIX ----\n";
-	test.print();
-
-
-	ByteSub(test);
-
-	cout << "---- AFTER BYTE SUB ----\n";
-	test.print();
-
-	
-	ShiftRow(test);
-
-	cout << "---- AFTER SHIFT ROW ----\n";
-	test.print();
-
-	
-
-	MixColumn(test);
-
-	cout << "---- AFTER MIX COLUMN ----\n";
-	test.print();
-
-	
-*/
-
-	cout << "---- BEFORE ANYTHING ----\n";
-	test.print();
-	//states[0].printAscii();
-	
-
-	Cipher(test, keyWords, keyWordsSize, 0, numRounds); 
-	Cipher(test, keyWords, keyWordsSize, 1, numRounds);
-	Cipher(test, keyWords, keyWordsSize, 2, numRounds); 
-	Cipher(test, keyWords, keyWordsSize, 3, numRounds); 
-	Cipher(test, keyWords, keyWordsSize, 4, numRounds); 
-	Cipher(test, keyWords, keyWordsSize, 5, numRounds); 
-	Cipher(test, keyWords, keyWordsSize, 6, numRounds);
-	Cipher(test, keyWords, keyWordsSize, 7, numRounds);
-	Cipher(test, keyWords, keyWordsSize, 8, numRounds);  
-	Cipher(test, keyWords, keyWordsSize, 9, numRounds);
-	Cipher(test, keyWords, keyWordsSize, 10, numRounds);
-
-	cout << "---- AFTER CIPHER ----\n";
-
-	Decrypt(test, keyWords, keyWordsSize, 0, numRounds);
-	Decrypt(test, keyWords, keyWordsSize, 1, numRounds);
-	Decrypt(test, keyWords, keyWordsSize, 2, numRounds);  
-	Decrypt(test, keyWords, keyWordsSize, 3, numRounds);
-	Decrypt(test, keyWords, keyWordsSize, 4, numRounds);
-	Decrypt(test, keyWords, keyWordsSize, 5, numRounds); 
-	Decrypt(test, keyWords, keyWordsSize, 6, numRounds); 
-	Decrypt(test, keyWords, keyWordsSize, 7, numRounds);
-	Decrypt(test, keyWords, keyWordsSize, 8, numRounds); 
-	Decrypt(test, keyWords, keyWordsSize, 9, numRounds);
-	Decrypt(test, keyWords, keyWordsSize, 10, numRounds);
-
-	cout << "---- AFTER DECRYPT ----\n";
-	test.print();
-	//states[0].printAscii();
-
-	
 
 	return 0;
 }
