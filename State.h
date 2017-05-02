@@ -10,6 +10,7 @@
 // 04/25/2017 | DS | Added the print() function.
 // 04/26/2017 | DS | Added the Word struct for key expansion.
 // 04/28/2017 | DS | Added a printAscii() function.
+// 05/01/2017 | MC | Convert to CUDA.
 
 #ifndef STATE_H
 #define STATE_H
@@ -31,10 +32,9 @@ struct block
 
 struct State
 {
-	unsigned char bytes[4][4];
-	int ByteSub_values[4][4];
+	int bytes[4][4];
 
-	void print()
+	/*void print()
 	{
 		cout << endl;
 		cout << "{ { " << setfill('0') << setw(2) << hex << (int)bytes[0][0] << ", " << setfill('0') << setw(2) << hex << (int)bytes[0][1] << ", " << setfill('0') << setw(2) << hex << (int)bytes[0][2] << ", " << setfill('0') << setw(2) << hex << (int)bytes[0][3] << " },\n";
@@ -51,19 +51,19 @@ struct State
 		cout << "  { " << (char)bytes[2][0] << ", " << (char)bytes[2][1] << ", " << (char)bytes[2][2] << ", " << (char)bytes[2][3] << " },\n";
 		cout << "  { " << (char)bytes[3][0] << ", " << (char)bytes[3][1] << ", " << (char)bytes[3][2] << ", " << (char)bytes[3][3] << " } }\n\n";
 
-	}
+	}*/
 };
 
 //for key expansion
 struct Word
 {
-	unsigned char bytes[4];
+	int bytes[4];
 
-	void print()
+	/*void print()
 	{
 		cout << endl;
 		cout << "{ " << setfill('0') << setw(2) << hex << (int)bytes[0] << ", " << setfill('0') << setw(2) << hex << (int)bytes[1] << ", " << setfill('0') << setw(2) << hex << (int)bytes[2] << ", " << setfill('0') << setw(2) << hex << (int)bytes[3] << " }\n\n";
-	}
+	}*/
 };
 
 #endif

@@ -9,14 +9,15 @@
 // 04/27/2017 | DS | Creation.  Moved from Main.cpp for program flow.
 // 04/28/2017 | DS | Include State.h
 // 04/29/2017 | DS | Changed the way the keyWords was getting passed in.
+// 05/01/2017 | MC | Convert to CUDA.
 
 #ifndef CIPHER_H
 #define CIPHER_H
 
 #include "State.h"
 
-void Cipher(State &input, Word (&keyWords)[60], size_t size, int roundIndex, int numRounds);
+__global__ void Cipher(State &input, Word (&keyWords)[60], size_t size, int roundIndex, int numRounds);
 
-void Decrypt(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int numRounds);
+__global__ void Decrypt(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int numRounds);
 
 #endif

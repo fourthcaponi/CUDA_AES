@@ -10,6 +10,7 @@
 // 04/24/2017 | DS | Added ByteSub and InvByteSub matrices.
 // 04/25/2017 | DS | Added the test matrix from the book.
 // 04/26/2017 | DS | Added the key expansion 't' constants.
+// 05/01/2017 | MC | Convert to CUDA.
 
 #ifndef MATRICES_H
 #define MATRICES_H

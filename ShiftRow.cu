@@ -9,6 +9,7 @@
 // 04/19/2017 | DS | Creation.
 // 04/24/2017 | DS | Added the shift operators.
 // 04/25/2017 | DS | Added the &'s to parameters.  Changed functions to return void.
+// 05/01/2017 | MC | Convert to CUDA.
 
 #include <iostream>
 #include <fstream>
@@ -25,7 +26,7 @@ using namespace std;
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
-__global__ void ShiftRow(State &input)
+__global__ void ShiftRow(int A[][4], int B[][4])
 {
 	int i = threadIdx.x;
 	int j = threadIdx.y;
@@ -45,7 +46,7 @@ __global__ void ShiftRow(State &input)
 	}
 }
 
-__global__ void InvShiftRow(State &input)
+__global__ void InvShiftRow(int A[][4], int B[][4])
 {
 	int offset = 4;
 	int i = threadIdx.x;
@@ -53,15 +54,15 @@ __global__ void InvShiftRow(State &input)
 
 	if (i < 4)
 	{
-		unsigned char tempBytes[4];
+		int tempBytes[4];
 		if (j < 4)
 		{
 			//perform the right shift as dependent upon the row
-			tempBytes[j] = input.bytes[i][(j + offset) % 4];
+			tempBytes[j] = A.bytes[i][(j + offset) % 4];
 		}
 		for (int k = 0; k < 4; k++)
 		{
-			input.bytes[i][k] = tempBytes[k];
+			A.bytes[i][k] = tempBytes[k];
 		}
 		offset--;
 	}

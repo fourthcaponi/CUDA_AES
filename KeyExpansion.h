@@ -7,6 +7,7 @@
 //
 // Revisions:
 // 04/26/2017 | DS | Creation.
+// 05/01/2017 | MC | Convert to CUDA.
 
 #ifndef KEY_EXP_H
 #define KEY_EXP_H

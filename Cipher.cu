@@ -9,6 +9,7 @@
 // 04/27/2017 | DS | Creation. Moved from Main.cpp for program flow.
 // 04/28/2017 | DS | Functions now accept states instead of blocks for input.
 // 04/29/2017 | DS | Changed the way the keyWords was getting passed in.
+// 05/01/2017 | MC | Convert to CUDA.
 
 #include <iostream>
 #include <fstream>
@@ -25,11 +26,14 @@ using namespace std;
 #include "State.h"
 #include "Matrices.h"
 
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+
 //depending on the passed in round index will determine 
 //which indeces of keyWords we will use
 
 //note this "roundIndex WILL go all the way up to numRounds"
-void Cipher(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int numRounds)
+__global__ void Cipher(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int numRounds)
 {
 	if (roundIndex == 0)
 	{
@@ -62,7 +66,7 @@ void Cipher(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int 
 }
 
 //note the roundIndex is BACKWARDS from how Dr. Gamage described it in class (?)
-void Decrypt(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int numRounds)
+__global__ void Decrypt(State &input, Word(&keyWords)[60], size_t size, int roundIndex, int numRounds)
 {
 	if (roundIndex == 0)
 	{

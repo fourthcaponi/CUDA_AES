@@ -7,6 +7,7 @@
 //
 // Revisions:
 // 04/19/2017 | DS | Creation.
+// 05/01/2017 | MC | Convert to CUDA.
 
 #ifndef BYTE_SUB_H
 #define BYTE_SUB_H
@@ -16,8 +17,8 @@
 
 using namespace std;
 
-void ByteSub(State &input);
+__device__ void ByteSub(State &input);
 
-void InvByteSub(State &input);
+__device__ void InvByteSub(State &input);
 
 #endif

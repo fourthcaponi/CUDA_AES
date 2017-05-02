@@ -10,6 +10,7 @@
 // 04/24/2017 | DS | Added the hex/dec stuff, rips each byte into 4 bit chunks.
 // 04/24/2017 | DS | Work on InvByteSub.  
 // 04/26/2017 | DS | Code cleanup.
+// 05/01/2017 | MC | Convert to CUDA.
 
 #include <iostream>
 #include <fstream>
@@ -21,15 +22,20 @@ using namespace std;
 
 #include "ByteSub.h"
 #include "State.h"
-//#include "MultInverse.cpp"
 #include "Matrices.h"
 #include "KeyExpansion.h"
 
-void ByteSub(State &input)
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+
+__device__ void ByteSub(State &input)
 {
-	for (int i = 0; i < 4; i++)
+	int i = threadIdx.x;
+	int j = threadIdx.y;
+
+	if (i < 4)
 	{
-		for (int j = 0; j < 4; j++)
+		if (j < 4)
 		{
 			//get the ASCII value as well as its decimal value
 			int byteTemp = input.bytes[i][j];
@@ -50,11 +56,14 @@ void ByteSub(State &input)
 	}
 }
 
-void InvByteSub(State &input)
+__device__ void InvByteSub(State &input)
 {
-	for (int i = 0; i < 4; i++)
+	int i = threadIdx.x;
+	int j = threadIdx.y;
+
+	if (i < 4)
 	{
-		for (int j = 0; j < 4; j++)
+		if (j < 4)
 		{
 			//get the ASCII value as well as its decimal value
 			int byteTemp = input.bytes[i][j];

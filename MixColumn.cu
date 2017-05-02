@@ -14,6 +14,7 @@
 // 04/26/2017 | DS | Changed styling to reflect rest of program & code cleanup.
 // 04/29/2017 | DS | New functions that use a constant matrix.  Old versions left for posterity.
 // 04/30/2017 | DS | Finalized new functions.  Tested working using matrix from pg 206.
+// 05/01/2017 | MC | Convert to CUDA.
 
 #include <iostream>
 #include <fstream>
@@ -177,7 +178,7 @@ __device__ unsigned char gmul(unsigned char a, unsigned char b)
 	return p;
 }
 
-__global__ void MixColumn(State &input)
+__device__ void MixColumn(State &input)
 {
 	unsigned char col[4];
 
@@ -218,7 +219,7 @@ __global__ void MixColumn(State &input)
 	}
 }
 
-void mc_operation(unsigned char *col)
+__device__ void mc_operation(unsigned char *col)
 {
 	unsigned char copyCol[4];
 	int i = threadIdx.x;
@@ -235,7 +236,7 @@ void mc_operation(unsigned char *col)
 }
 
 
-void InvMixColumn(State &input)
+__device__ void InvMixColumn(State &input)
 {
 	unsigned char col[4];
 	int i = threadIdx.x;
@@ -272,7 +273,7 @@ void InvMixColumn(State &input)
 	}
 }
 
-void inv_mc_operation(unsigned char *col)
+__device__ void inv_mc_operation(unsigned char *col)
 {
 	unsigned char copyCol[4];
 	int i = threadIdx.x;

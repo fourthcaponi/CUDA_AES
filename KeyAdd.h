@@ -10,6 +10,7 @@
 // 04/26/2017 | DS | Changed parameter pointer types.
 // 04/27/2017 | DS | Changed block to state and keyWord to keyWords.
 // 04/29/2017 | DS | Changed the way the keyWords was getting passed in.
+// 05/01/2017 | MC | Convert to CUDA.
 
 #ifndef KEY_ADD_H
 #define KEY_ADD_H
@@ -17,6 +18,6 @@
 #include "State.h"
 
 //note KeyAdd is the inverse of itself
-void KeyAdd(State &input, Word(&keyWords)[60], size_t size, int round);
+__device__ void KeyAdd(State &input, Word(&keyWords)[60], size_t size, int round);
 
 #endif
